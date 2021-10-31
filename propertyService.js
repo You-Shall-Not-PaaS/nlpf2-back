@@ -1,4 +1,4 @@
-class PagedList {
+module.exports = class PagedList {
 
     page_size = 30;
 
@@ -70,4 +70,3 @@ class PagedList {
 
   }
 
-  exports.PagedList = PagedList;

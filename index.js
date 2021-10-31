@@ -1,7 +1,6 @@
-
 const express = require('express');
 
-import {PagedList} from 'propertyService';
+const PagedList = require('./propertyService');
 
 const app = express();
 
@@ -11,14 +10,15 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-///debug route
+//debug route
 app.get('/', (req, res) => {
     res.send("hello World");
 });
 
-app.get('/list/:page', (req, res) => {
-    let pagedlist = PagedList(page);
-    return pagedlist.get_paginated_property();
+app.get('/list/:page/', (req, res) => {
+    const page = req.params["page"];
+    pagedlist = new PagedList(page);
+    res.send(pagedlist.get_paginated_property());
 });
 
 

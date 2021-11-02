@@ -7,66 +7,43 @@ module.exports = class PagedList {
     }
 
     get_paginated_property() {
-        //mock
-        if (this.page == 0)
-        {
-            return  {
-                "id": 1,
-                "voie": "COMTE DE LA TEYSSONNIERE",
-                "premier_lot": null,
-                "no_disposition": "1",
-                "code_postal": "1000.0",
-                "nombre_de_lots": "0",
-                "date_mutation": "06/01/2020",
-                "commune": "BOURG-EN-BRESSE",
-                "code_type_local": "1.0",
-                "nature_mutation": "Vente",
-                "code_departement": "1",
-                "type_local": "Maison",
-                "valeur_fonciere": "180300,00",
-                "code_commune": "53",
-                "surface_reelle_bati": "75.0",
-                "no_voie": "31.0",
-                "section": "AI",
-                "nombre_pieces_principales": "4.0",
-                "type_de_voie": "RUE",
-                "no_plan": "138",
-                "nature_culture": "S",
-                "code_voie": "0970",
-                "surface_terrain": "525.0"
-              }
-        }
-        else {
-            return (
-                {
-                    "id": 2,
-                    "voie": "COMTE DE LA TEYSSONNIERE 5",
-                    "premier_lot": null,
-                    "no_disposition": "1",
-                    "code_postal": "10010.0",
-                    "nombre_de_lots": "0",
-                    "date_mutation": "06/01/2020",
-                    "commune": "BOURG-EN-BRESSE",
-                    "code_type_local": "1.0",
-                    "nature_mutation": "Vente",
-                    "code_departement": "1",
-                    "type_local": "Maison",
-                    "valeur_fonciere": "180300,00",
-                    "code_commune": "53",
-                    "surface_reelle_bati": "75.0",
-                    "no_voie": "31.0",
-                    "section": "AI",
-                    "nombre_pieces_principales": "4.0",
-                    "type_de_voie": "RUE",
-                    "no_plan": "138",
-                    "nature_culture": "S",
-                    "code_voie": "0970",
-                    "surface_terrain": "525.0"
-                  }
-            )
-        }
-        
-    }
+      properties = await debug.collection('placeholder');
+      properties = properties.startAt(this.page_size * this.page)
+      properties = properties.endAt(this.page_size * (this.page + 1));
+      return properties.get();
+  }
+}
 
+module.exports = class FilteredList {
+  
+  page_size = 30
+
+  constructor(page, filter) {
+    this.page = page;
+    this.filter = filter;
   }
 
+  property_filter () {
+    properties = await debug.collection('placeholder');
+    
+    for(const key in filter) {
+      if (key === "code_postal" || key === "type_local") {
+        properties = properties.where(key , "==", filter[key]);
+      }
+      else if (key === "maxprice") {
+        properties = properties.where("valeur_fonciere", "<=", filter[key]);
+      }
+      else if (key === "maxsize") {
+        properties = properties.where("surface_reelle_bati" , "<=", filter[key]);
+      }
+      else if (key === 'minprice') {
+        properties = properties.where("valeur_fonciere", ">=", filter[key]);
+      }
+      else if (key === 'minprice' || key === "minsize") {
+        properties = properties.where("surface_reelle_bati" , ">=", filter[key]);
+      }
+    }
+
+    properties.startAt(this.page_size * this.page).endAt(this.page_size * (this.page + 1)).get();
+  }
+}

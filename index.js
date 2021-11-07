@@ -1,6 +1,6 @@
 const express = require('express');
 
-const PagedList = require('./propertyService');
+const {get_paginated_property} = require('./propertyService');
 const FilteredList = require('./propertyService');
 
 const app = express();
@@ -18,10 +18,10 @@ app.get('/', (req, res) => {
     res.send("hello World");
 });
 
-app.get('/list/:page/', (req, res) => {
+app.get('/list/:page/', async (req, res) => {
     const page = req.params["page"];
-    pagedlist = new PagedList(page);
-    res.send(pagedlist.get_paginated_property());
+    answer = await get_paginated_property(30, parseInt(page));
+    res.send(answer);
 });
 
 app.get('/list/filtred/:page/', (req, res) => {

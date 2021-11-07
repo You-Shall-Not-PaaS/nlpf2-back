@@ -1,49 +1,55 @@
-module.exports = class PagedList {
+const fireBase = require("firebase-admin");
 
-    page_size = 30;
+const serviceAccount = require("./key.json");
 
-    constructor(page) {
-      this.page = page;
-    }
+fireBase.initializeApp({
+  credential: fireBase.credential.cert(serviceAccount),
+});
 
-    get_paginated_property() {
-      properties = await debug.collection('placeholder');
-      properties = properties.startAt(this.page_size * this.page)
-      properties = properties.endAt(this.page_size * (this.page + 1));
-      return properties.get();
-  }
+const db = fireBase.firestore();
+
+async function get_paginated_property(page_size, page) {
+  const query = db.collection("test");
+  const begin = page_size * page;
+  const end = page_size * (page + 1);
+  console.log(begin);
+  console.log(end);
+  const properties = await query
+    .orderBy("id")
+    .startAt(1)
+    .endAt(3)
+    .get();
+
+  console.log(properties.docs.map(doc => Object.assign(doc.data(), {id: doc.id})));
+  return properties.docs.map(doc => Object.assign(doc.data(), {id: doc.id}));
 }
 
-module.exports = class FilteredList {
-  
-  page_size = 30
+  //properties = properties.endAt(this.page_size * (this.page + 1));
+  //paginated_properties = await properties.get();
 
-  constructor(page, filter) {
-    this.page = page;
-    this.filter = filter;
-  }
+/* async function property_filter(page_size, page, filter) {
+    properties = debug.collection("valeurs-foncieres");
 
-  property_filter () {
-    properties = await debug.collection('placeholder');
-    
-    for(const key in filter) {
+    for (const key in filter) {
       if (key === "code_postal" || key === "type_local") {
-        properties = properties.where(key , "==", filter[key]);
-      }
-      else if (key === "maxprice") {
+        properties = properties.where(key, "==", filter[key]);
+      } else if (key === "maxprice") {
         properties = properties.where("valeur_fonciere", "<=", filter[key]);
-      }
-      else if (key === "maxsize") {
-        properties = properties.where("surface_reelle_bati" , "<=", filter[key]);
-      }
-      else if (key === 'minprice') {
+      } else if (key === "maxsize") {
+        properties = properties.where("surface_reelle_bati", "<=", filter[key]);
+      } else if (key === "minprice") {
         properties = properties.where("valeur_fonciere", ">=", filter[key]);
-      }
-      else if (key === 'minprice' || key === "minsize") {
-        properties = properties.where("surface_reelle_bati" , ">=", filter[key]);
+      } else if (key === "minprice" || key === "minsize") {
+        properties = properties.where("surface_reelle_bati", ">=", filter[key]);
       }
     }
 
-    properties.startAt(this.page_size * this.page).endAt(this.page_size * (this.page + 1)).get();
-  }
-}
+    return await properties
+      .startAt(this.page_size * this.page)
+      .endAt(this.page_size * (this.page + 1))
+      .get();
+  }*/
+
+module.exports = {
+  get_paginated_property: get_paginated_property,
+};

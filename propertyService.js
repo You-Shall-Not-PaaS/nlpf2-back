@@ -24,14 +24,11 @@ async function get_paginated_property(page_size, page) {
   return properties.docs.map(doc => Object.assign(doc.data(), {id: doc.id}));
 }
 
-  //properties = properties.endAt(this.page_size * (this.page + 1));
-  //paginated_properties = await properties.get();
-
-/* async function property_filter(page_size, page, filter) {
+async function property_filter(page_size, page, filter) {
     properties = debug.collection("valeurs-foncieres");
 
     for (const key in filter) {
-      if (key === "code_postal" || key === "type_local") {
+      if (key === "code_postal" || key === "type_local" || key === "commune") {
         properties = properties.where(key, "==", filter[key]);
       } else if (key === "maxprice") {
         properties = properties.where("valeur_fonciere", "<=", filter[key]);
@@ -39,8 +36,14 @@ async function get_paginated_property(page_size, page) {
         properties = properties.where("surface_reelle_bati", "<=", filter[key]);
       } else if (key === "minprice") {
         properties = properties.where("valeur_fonciere", ">=", filter[key]);
-      } else if (key === "minprice" || key === "minsize") {
+      } else if (key === "minsize") {
         properties = properties.where("surface_reelle_bati", ">=", filter[key]);
+      }
+      else if (key === "maxpiece") {
+        properties = properties.where("nombre_pieces_principales", ">=", filter[key]);
+      }
+      else if (key === "minpiece") {
+        properties = properties.where("nombre_pieces_principales", "<=", filter[key]);
       }
     }
 
@@ -48,8 +51,9 @@ async function get_paginated_property(page_size, page) {
       .startAt(this.page_size * this.page)
       .endAt(this.page_size * (this.page + 1))
       .get();
-  }*/
+  }
 
 module.exports = {
   get_paginated_property: get_paginated_property,
+  property_filter: property_filter,
 };

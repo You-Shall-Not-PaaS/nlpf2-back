@@ -48,9 +48,8 @@ async function property_filter(page_size, page, filter) {
       }
     }
 
-    console.log("new")
-
-    query = query + ".get();";//".orderBy(\"id\").startAt(" + (page_size * page).toString() + ").endAt(" + (page_size * (page + 1)).toString() + ").get();";
+    //query = query + ".orderBy(\"id\").startAt(" + (page_size * page).toString() + ").endAt(" + (page_size * (page + 1)).toString() + ").get();";
+    query = query + ".get();";
     console.log(query);
 
     const properties = await eval(query);

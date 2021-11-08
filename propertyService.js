@@ -25,28 +25,32 @@ async function property_filter(page_size, page, filter) {
     query = "db.collection(\"valeurs-foncieres\")";
 
     for (const key in filter) {
-      if (key === "code_postal" || key === "type_local" || key === "commune") {
+      if (key === "code postal" || key === "type local" || key === "commune") {
         query = query + ".where(" + "\"" + key + "\"" +  ",\"==\"," + "\"" + filter[key] + "\"" + ")";
-      } else if (key === "maxprice") {
-        query = query + ".where(" + "\"valeur_fonciere\"" +  ", \"<=\"," + "\"" + filter[key] + "\"" + ")";
-      } else if (key === "maxsize") {
-        query = query + ".where(" + "surface_reelle_bati" +  ", \"<=\"," + "\"" + filter[key] + "\"" + ")";
-      } else if (key === "minprice") {
-        query = query + ".where(" + "valeur_fonciere" +  ", \">=\"," + "\"" + filter[key] + "\"" + ")";
-      } else if (key === "minsize") {
-        query = query + ".where(" + "surface_reelle_bati" +  ", \">=\"," + "\"" + filter[key] + "\"" + ")";
+      }
+      else if (key === "maxprice") {
+        query = query + ".where(" + "\"Valeur fonciere\"" +  ", \"<=\"," + filter[key].toString() + ")";
+      }
+      else if (key === "maxsize") {
+        query = query + ".where(" + "\"Surface reelle bati\"" +  ", \"<=\"," + filter[key].toString() + ")";
+      }
+      else if (key === "minprice") {
+        query = query + ".where(" + "\"Valeur fonciere\"" +  ", \">=\"," + filter[key].toString() + ")";
+      }
+      else if (key === "minsize") {
+        query = query + ".where(" + "\"Surface reelle bati\"" +  ", \">=\"," + filter[key].toString() + ")";
       }
       else if (key === "maxpiece") {
-        query = query + ".where(" + "nombre_pieces_principales" +  ", \">=\"," + "\"" + filter[key] + "\"" + ")";
+        query = query + ".where(" + "\"Nombre pieces principales\"" +  ", \">=\"," + filter[key].toString() + ")";
       }
       else if (key === "minpiece") {
-        query = query + ".where(" + "nombre_pieces_principales" +  ", \"<=\"," + "\"" + filter[key] + "\"" + ")";
+        query = query + ".where(" + "\"Nombre pieces principales\"" +  ", \"<=\"," + filter[key].toString() + ")";
       }
     }
 
     console.log("new")
 
-    query = query + ".orderBy(\"id\").startAt(" + (page_size * page).toString() + ").endAt(" + (page_size * (page + 1)).toString() + ").get();";
+    query = query + ".get();";//".orderBy(\"id\").startAt(" + (page_size * page).toString() + ").endAt(" + (page_size * (page + 1)).toString() + ").get();";
     console.log(query);
 
     const properties = await eval(query);

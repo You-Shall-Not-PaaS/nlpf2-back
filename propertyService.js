@@ -25,8 +25,14 @@ async function property_filter(page_size, page, filter) {
     query = "db.collection(\"valeurs-foncieres\")";
 
     for (const key in filter) {
-      if (key === "code postal" || key === "type local" || key === "commune") {
-        query = query + ".where(" + "\"" + key + "\"" +  ",\"==\"," + "\"" + filter[key] + "\"" + ")";
+      if (key === "code_postal") {
+        query = query + ".where(" + "\"Code postal\"" +  ",\"==\"," + "\"" + filter[key] + "\"" + ")";
+      }
+      else if (key === "type_local") {
+        query = query + ".where(" + "\"Type local\"" +  ",\"==\"," + "\"" + filter[key] + "\"" + ")";
+      }
+      else if (key === "commune") {
+        query = query + ".where(" + "\"Commune\"" +  ",\"==\"," + "\"" + filter[key] + "\"" + ")";
       }
       else if (key === "maxprice") {
         query = query + ".where(" + "\"Valeur fonciere\"" +  ", \"<=\"," + filter[key].toString() + ")";

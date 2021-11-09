@@ -1,32 +1,33 @@
 const fireBase = require("firebase-admin");
-const { min } = require("moment");
 
-const serviceAccount = require("./key.json");
+const configFileName = "./key.json"
+const serviceAccount = require(configFileName);
 
 fireBase.initializeApp({
   credential: fireBase.credential.cert(serviceAccount),
 });
 
 const db = fireBase.firestore();
+const dbName = "valeurs-foncieres"
+const page_size = 30
 
-async function get_paginated_property(page_size, page) {
-  const query = db.collection("valeurs-foncieres");
+async function get_paginated_property(page) {
+  const query = db.collection(dbName);
   properties = await query
     .orderBy("id")
     .startAt(page * page_size)
     .endAt((page + 1) * page_size)
     .get();
 
-  //console.log(properties.docs.map(doc => Object.assign(doc.data(), {id: doc.id})));
   return properties.docs.map((doc) =>
     Object.assign(doc.data(), { id: doc.id })
   );
 }
 
-async function property_filter(page_size, page, filter) {
-  query = 'db.collection("valeurs-foncieres")';
-  minmax = {};
-  for (const key in filter) {
+async function property_filter(page, filter) {
+  var query = 'db.collection(dbName)';
+  var minmax = [];
+  for (key in filter) {
     if (key === "code_postal") {
       query =
         query +
@@ -68,58 +69,56 @@ async function property_filter(page_size, page, filter) {
         '"' +
         ")";
     } else {
-      eval("minmax." + key + "=" + filter[key] + ";");
+      minmax[key] = filter[key]
     }
   }
 
   query = query + ".get();";
 
   const properties = await eval(query);
-  const dic_properties = properties.docs.map((doc) =>
+  const dict_properties = properties.docs.map((doc) =>
     Object.assign(doc.data(), { id: doc.id })
   );
-  filtered_properties = [];
+  var filtered_properties = [];
+  var count = 0;
 
-  cmpt = 0;
-
-  for (i = 0; i < Object.keys(dic_properties).length; i++) {
-    propertie = dic_properties[i];
+  for (i = 0; i < Object.keys(dict_properties).length; i++) {
+    property = dict_properties[i];
     respect_filter = true;
 
     for (const key in minmax) {
-      if (key === "maxprice" && minmax[key] <= propertie["Valeur fonciere"]) {
+      if (key === "maxprice" && minmax[key] <= property["Valeur fonciere"]) {
         respect_filter = false;
         break;
       }
-      if (key === "minprice" && minmax[key] >= propertie["Valeur fonciere"]) {
+      if (key === "minprice" && minmax[key] >= property["Valeur fonciere"]) {
         respect_filter = false;
-        console.log("test");
         break;
       }
       if (
         key === "maxsize" &&
-        minmax[key] <= propertie["Surface reelle bati"]
+        minmax[key] <= property["Surface reelle bati"]
       ) {
         respect_filter = false;
         break;
       }
       if (
         key === "minsize" &&
-        minmax[key] >= propertie["Surface reelle bati"]
+        minmax[key] >= property["Surface reelle bati"]
       ) {
         respect_filter = false;
         break;
       }
       if (
         key === "maxpiece" &&
-        minmax[key] <= propertie["Nombre pieces principales"]
+        minmax[key] <= property["Nombre pieces principales"]
       ) {
         respect_filter = false;
         break;
       }
       if (
         key === "minpiece" &&
-        minmax[key] >= propertie["Nombre pieces principales"]
+        minmax[key] >= property["Nombre pieces principales"]
       ) {
         respect_filter = false;
         break;
@@ -127,15 +126,14 @@ async function property_filter(page_size, page, filter) {
     }
 
     if (respect_filter) {
-      if (page * page_size <= cmpt) {
-        if ((page + 1) * page_size >= cmpt) {
-          filtered_properties.push(propertie);
+      if (page * page_size <= count) {
+        if ((page + 1) * page_size >= count) {
+          filtered_properties.push(property);
         } else {
           break;
         }
       }
-
-      cmpt++;
+      count++;
     }
   }
 

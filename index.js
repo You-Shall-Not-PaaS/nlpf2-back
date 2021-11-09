@@ -20,14 +20,14 @@ app.get('/', (req, res) => {
 
 app.get('/list/:page/', async (req, res) => {
     const page = parseInt(req.params["page"]);
-    const answer = await get_paginated_property(30, parseInt(page));
+    const answer = await get_paginated_property(parseInt(page));
     res.send(answer);
 });
 
-app.get('/list/filtred/:page/', async (req, res) => {
+app.get('/list/filter/:page/', async (req, res) => {
     const page = parseInt(req.params["page"]);
     const filter = req.query;
-    const answer = await property_filter(30, page, filter);
+    const answer = await property_filter(page, filter);
     res.send(answer);
 });
 

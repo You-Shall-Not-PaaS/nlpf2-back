@@ -1,6 +1,25 @@
 {
+  "name": "nlpf2-back",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "app:dev": "nodemon index.js",
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/You-Shall-Not-PaaS/nlpf2-back.git"
+  },
+  "author": "Zakaria Ben Allal",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/You-Shall-Not-PaaS/nlpf2-back/issues"
+  },
+  "homepage": "https://github.com/You-Shall-Not-PaaS/nlpf2-back#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "moment": "^2.29.1"
+    "firebase-admin": "^10.0.0",
+    "nodemon": "^2.0.14"
   }
 }

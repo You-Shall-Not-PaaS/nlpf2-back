@@ -14,7 +14,7 @@ async function get_paginated_property(page_size, page) {
   properties = await query
     .orderBy("id")
     .startAt(page * page_size)
-    .endAt(page * (page_size + 1))
+    .endAt((page + 1) * page_size)
     .get();
 
   //console.log(properties.docs.map(doc => Object.assign(doc.data(), {id: doc.id})));

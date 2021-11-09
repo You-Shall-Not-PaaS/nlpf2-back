@@ -1,4 +1,5 @@
 const fireBase = require("firebase-admin");
+const { min } = require("moment");
 
 const serviceAccount = require("./key.json");
 
@@ -23,43 +24,84 @@ async function get_paginated_property(page_size, page) {
 async function property_filter(page_size, page, filter) {
 
     query = "db.collection(\"valeurs-foncieres\")";
-
+    minmax = {};
     for (const key in filter) {
       if (key === "code_postal") {
         query = query + ".where(" + "\"Code postal\"" +  ",\"==\"," + "\"" + filter[key] + "\"" + ")";
       }
       else if (key === "type_local") {
-        query = query + ".where(" + "\"Type local\"" +  ",\"==\"," + "\"" + filter[key] + "\"" + ")";
+        if (filter[key] === "Autre") {
+          query = query + ".where(" + "\"Type local\"" +  ",\"not-in\"," + "[\"Maison\", \"Appartement\"]" + ")";
+        }
+        else {
+          query = query + ".where(" + "\"Type local\"" + ",\"==\"," + "\"" + filter[key] + "\"" + ")";
+        }
       }
       else if (key === "commune") {
         query = query + ".where(" + "\"Commune\"" +  ",\"==\"," + "\"" + filter[key] + "\"" + ")";
       }
-      else if (key === "maxprice") {
-        query = query + ".where(" + "\"Valeur fonciere\"" +  ", \"<=\"," + filter[key].toString() + ")";
-      }
-      else if (key === "maxsize") {
-        query = query + ".where(" + "\"Surface reelle bati\"" +  ", \"<=\"," + filter[key].toString() + ")";
-      }
-      else if (key === "minprice") {
-        query = query + ".where(" + "\"Valeur fonciere\"" +  ", \">=\"," + filter[key].toString() + ")";
-      }
-      else if (key === "minsize") {
-        query = query + ".where(" + "\"Surface reelle bati\"" +  ", \">=\"," + filter[key].toString() + ")";
-      }
-      else if (key === "maxpiece") {
-        query = query + ".where(" + "\"Nombre pieces principales\"" +  ", \">=\"," + filter[key].toString() + ")";
-      }
-      else if (key === "minpiece") {
-        query = query + ".where(" + "\"Nombre pieces principales\"" +  ", \"<=\"," + filter[key].toString() + ")";
+      else {
+        eval("minmax."  + key + "=" +  filter[key] + ";"); 
       }
     }
 
-    //query = query + ".orderBy(\"id\").startAt(" + (page_size * page).toString() + ").endAt(" + (page_size * (page + 1)).toString() + ").get();";
-    query = query + ".get();";
-    console.log(query);
+      query = query + ".get();";
 
-    const properties = await eval(query);
-    return properties.docs.map(doc => Object.assign(doc.data(), {id: doc.id}));
+      const properties = await eval(query);
+      const dic_properties = properties.docs.map(doc => Object.assign(doc.data(), {id: doc.id}));
+      filtered_properties = [];
+
+      cmpt = 0;
+
+      for (i = 0; i < Object.keys(dic_properties).length; i++) {
+        
+        propertie = dic_properties[i];
+        respect_filter = true;
+
+        for (const key in minmax) {
+
+          if (key === "maxprice" && (minmax[key] <= propertie["Valeur fonciere"])) {
+              respect_filter = false;
+              break;
+          }
+          if (key === "minprice" && (minmax[key] >= propertie["Valeur fonciere"])) {
+            respect_filter = false;
+            console.log("test")
+            break;
+          }
+         if (key === "maxsize" && (minmax[key] <= propertie["Surface reelle bati"])) {
+            respect_filter = false;
+            break;
+          }
+          if (key === "minsize" && (minmax[key] >= propertie["Surface reelle bati"])) {
+            respect_filter = false;
+            break;
+          }
+          if (key === "maxpiece" && (minmax[key] <= propertie["Nombre pieces principales"])) {
+            respect_filter = false;
+            break;
+          }
+          if (key === "minpiece" && (minmax[key] >= propertie["Nombre pieces principales"])) {
+            respect_filter = false;
+            break;
+          }
+      }
+
+      if (respect_filter) {
+        if ((page * page_size) <= cmpt) {
+          if (((page + 1) * page_size ) >= cmpt) {
+            filtered_properties.push(propertie);
+          }
+          else {
+            break;
+          }
+        }
+
+        cmpt++;
+      }
+    }
+    
+    return filtered_properties;
   }
 
 module.exports = {

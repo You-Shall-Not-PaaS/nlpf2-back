@@ -1,6 +1,6 @@
 const express = require('express');
 
-const {get_paginated_property, property_filter} = require('./propertyService');
+const {get_paginated_property, filter_properties} = require('./propertyService');
 
 
 const app = express();
@@ -15,7 +15,7 @@ app.listen(PORT, () => {
 
 //debug route
 app.get('/', (req, res) => {
-    res.send("hello World");
+    res.send("hello NLPF");
 });
 
 app.get('/properties/:page/', async (req, res) => {
@@ -32,6 +32,4 @@ app.get('/properties/filter/:page/', async (req, res) => {
 });
 
 
-module.exports = {
-    app
-};
+module.exports = app

@@ -30,6 +30,8 @@ app.get('/properties-filter/:page/', Property.filter_properties)
 
 app.get('/properties/town/average-price/:id', Property.get_average_price)
 
+app.get('/properties-grade/:id', Property.get_grade);
+
 app.post('/properties/similar', Property.get_similar_properties)
 
 module.exports = {

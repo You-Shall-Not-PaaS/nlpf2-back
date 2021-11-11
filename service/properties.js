@@ -205,11 +205,26 @@ async function get_similar_properties(req, res) {
   }
 }
 
+async function get_grade(req, res) {
+  const id = parseInt(req.params["id"])
 
+  const property = await db.collection(dbName)
+  .where("id", "==", id)
+  .get();
+
+  console.log(id);
+
+  const ans = property.docs.map((doc) =>
+  Object.assign(doc.data(), { id: doc.id })
+)
+
+  res.send(ans);
+}
 
 module.exports = {
   get_paginated_properties: get_paginated_properties,
   filter_properties: filter_properties,
   get_average_price: get_average_price,
-  get_similar_properties: get_similar_properties
+  get_similar_properties: get_similar_properties,
+  get_grade: get_grade
 };

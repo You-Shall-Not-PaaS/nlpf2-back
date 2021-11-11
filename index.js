@@ -6,10 +6,11 @@ const {get_paginated_property, filter_properties} = require('./propertyService')
 
 const app = express();
 
-var corsOptions = {
-    origin: '*',
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-  }
+const cors = require('cors');
+app.use(cors({
+    origin: '*'
+}));
+
 
 //local debug
 const PORT = 5555;

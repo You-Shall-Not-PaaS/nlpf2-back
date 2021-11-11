@@ -109,7 +109,7 @@ async function filter_properties(req, res) {
     const dict_properties = properties.docs.map((doc) =>
       Object.assign(doc.data(), { id: doc.id })
     );
-    var filtered_properties = [];
+    var filter_properties = [];
     var count = 0;
 
     for (i = 0; i < Object.keys(dict_properties).length; i++) {
@@ -158,7 +158,7 @@ async function filter_properties(req, res) {
       if (respect_filter) {
         if (page * page_size <= count) {
           if ((page + 1) * page_size >= count) {
-            filtered_properties.push(property);
+            filter_properties.push(property);
           } else {
             break;
           }

@@ -15,7 +15,7 @@ const dbName = "valeurs-foncieres"
 const page_size = 30
 
 async function get_paginated_property(req, res) {
-  if (!req.params["page"]) {
+  if (Object.keys(req.params).length === 0) {
     Logger.error('[PaginateProperties](400) Page parameter is undefined')
     return Response.handle400BadRequest(res, 'Page parameter is undefined')
   }
@@ -42,11 +42,13 @@ async function get_paginated_property(req, res) {
 }
 
 async function filter_properties(req, res) {
-  if (!req.params["page"]) {
+
+  if (Object.keys(req.params).length === 0) {
+    console.log("eazeaz")
     Logger.error('[FilterProperties] Page parameter is undefined')
     return Response.handle400BadRequest(res, 'Page parameter is undefined')
   }
-  if (!req.query) {
+  if (Object.keys(req.query).length === 0) {
     Logger.error('[FilterProperties] Request query is undefined')
     return Response.handle400BadRequest(res, 'Request query is undefined')
   }

@@ -1,9 +1,14 @@
 const express = require('express');
+var cors = require('cors')
 
 const {get_paginated_property, filter_properties} = require('./propertyService');
 
 
 const app = express();
+
+app.use(cors({
+    origin: '*'
+}));
 
 
 //local debug

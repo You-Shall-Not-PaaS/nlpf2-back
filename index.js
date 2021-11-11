@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
 
 app.get('/properties/:page/', get_paginated_property);
 
-app.get('/properties/filter/:page/', filter_properties)
+app.get('/properties-filter/:page/', filter_properties)
 
 
 module.exports = app

@@ -1,6 +1,6 @@
 const express = require('express');
 
-const {get_paginated_property, property_filter} = require('./propertyService');
+const {get_paginated_property, filter_properties} = require('./propertyService');
 
 
 const app = express();
@@ -15,23 +15,12 @@ app.listen(PORT, () => {
 
 //debug route
 app.get('/', (req, res) => {
-    res.send("hello World");
+    res.send("hello NLPF");
 });
 
-app.get('/properties/:page/', async (req, res) => {
-    const page = parseInt(req.params["page"]);
-    const answer = await get_paginated_property(parseInt(page));
-    res.send(answer);
-});
+app.get('/properties/:page/', get_paginated_property);
 
-app.get('/properties/filter/:page/', async (req, res) => {
-    const page = parseInt(req.params["page"]);
-    const filter = req.query;
-    const answer = await property_filter(page, filter);
-    res.send(answer);
-});
+app.get('/properties-filter/:page/', filter_properties)
 
 
-module.exports = {
-    app
-};
+module.exports = app

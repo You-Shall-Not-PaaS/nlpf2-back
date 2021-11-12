@@ -6,7 +6,7 @@ const { db, page_size, dbName } = require('../config')
 const { deviation, median } = require("../utils/math")
 const { format_property, query_to_array } = require("../utils/formatter")
 const { get_town_prices, sort_properties } = require('./utils')
-
+const { garden } = require("./grade/intern_grading")
 
 async function get_paginated_properties(req, res) {
   try {
@@ -206,19 +206,31 @@ async function get_similar_properties(req, res) {
 }
 
 async function get_grade(req, res) {
-  const id = parseInt(req.params["id"])
+  try {
+    const grade_dic = { "grade": 5, "tag": [] }
+    const id = parseInt(req.params["id"])
 
-  const property = await db.collection(dbName)
-  .where("id", "==", id)
-  .get();
+    const property = await db.collection(dbName)
+      .where("id", "==", id)
+      .get();
 
-  console.log(id);
+    console.log(id);
 
-  const ans = property.docs.map((doc) =>
-  Object.assign(doc.data(), { id: doc.id })
-)
+    property = property.docs.map((doc) =>
+      Object.assign(doc.data(), { id: doc.id })
+    )
 
-  res.send(ans);
+    grade_dic = garden(property, grade_dic);
+
+
+    logger.info('Property succefully grade')
+    return Response.handle200Success(res, 'Property succefully grade', grade_dic)
+
+
+  } catch (error) {
+    logger.error('[get_grade](500): ' + error.message);
+    return Response.handle500InternalServerError(res, error.message, error.stack)
+  }
 }
 
 module.exports = {

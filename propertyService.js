@@ -3,6 +3,7 @@ const _ = require('lodash')
 
 const Response = require('./utils/response')
 const logger = require("./utils/logger");
+const {format_property} = require("./utils/formatter")
 const configFileName = "./key.json"
 const serviceAccount = require(configFileName);
 
@@ -13,6 +14,10 @@ fireBase.initializeApp({
 const db = fireBase.firestore();
 const dbName = "valeurs-foncieres"
 const page_size = 30
+
+function test(l) {
+  console.log(l);
+}
 
 async function get_paginated_property(req, res) {
   try {
@@ -27,8 +32,11 @@ async function get_paginated_property(req, res) {
     const response = properties.docs.map((doc) =>
       Object.assign(doc.data(), { id: doc.id })
     );
-    logger.info('Properties succesfully retrieved')
-    return Response.handle200Success(res, 'Properties succesfully retrieved', response)
+
+    response.forEach(format_property);
+ 
+    logger.info('Properties succesfully retrieved');
+    return Response.handle200Success(res, 'Properties succesfully retrieved', response);
 
   } catch (error) {
     logger.error('[PaginateProperties](500): ' + error.message);
@@ -157,6 +165,9 @@ async function filter_properties(req, res) {
         count++;
       }
     }
+
+    filter_properties.forEach(format_property);
+
     logger.info('Properties succesfully retrieved')
     return Response.handle200Success(res, 'Properties succesfully filtered', filter_properties)
   } catch (error) {

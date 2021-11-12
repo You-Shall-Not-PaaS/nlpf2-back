@@ -1,7 +1,6 @@
 const fireBase = require("firebase-admin");
 
 const Response = require('./utils/response')
-const Logger = require('./utils/logger');
 const logger = require("./utils/logger");
 const configFileName = "./key.json"
 const serviceAccount = require(configFileName);
@@ -38,7 +37,7 @@ async function get_paginated_property(req, res) {
 
 async function filter_properties(req, res) {
   if (Object.keys(req.query).length === 0) {
-    Logger.error('[FilterProperties] Request query is undefined')
+    logger.error('[FilterProperties] Request query is undefined')
     return Response.handle400BadRequest(res, 'Request query is undefined')
   }
 

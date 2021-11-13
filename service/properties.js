@@ -27,8 +27,12 @@ async function get_paginated_properties(req, res) {
     return Response.handle200Success(res, 'Properties successfully retrieved', response);
 
   } catch (error) {
-    logger.error('[PaginateProperties](500): ' + error.message);
-    return Response.handle500InternalServerError(res, error.message, error.stack)
+    logger.error("[PaginateProperties](500): " + error.message);
+    return Response.handle500InternalServerError(
+      res,
+      error.message,
+      error.stack
+    );
   }
 }
 
@@ -39,9 +43,9 @@ async function filter_properties(req, res) {
   }
 
   try {
+
     const page = parseInt(req.params.page);
     const filter = req.query;
-
     var query = db.collection(dbName);
     var minmax = [];
     for (key in filter) {
@@ -58,7 +62,7 @@ async function filter_properties(req, res) {
         query = query.where("Commune", "in", communes);
 
       } else {
-        minmax[key] = filter[key]
+        minmax[key] = filter[key];
       }
     }
 
@@ -133,8 +137,12 @@ async function filter_properties(req, res) {
     logger.info('Properties successfully retrieved')
     return Response.handle200Success(res, 'Properties successfully filtered', filter_properties)
   } catch (error) {
-    logger.error('[FilterProperties](500): ' + error.message);
-    return Response.handle500InternalServerError(res, error.message, error.stack)
+    logger.error("[FilterProperties](500): " + error.message);
+    return Response.handle500InternalServerError(
+      res,
+      error.message,
+      error.stack
+    );
   }
 }
 
@@ -207,29 +215,37 @@ async function get_similar_properties(req, res) {
 
 async function get_grade(req, res) {
   try {
-    const grade_dic = { "grade": 5, "tag": [] }
-    const id = parseInt(req.params["id"])
+    var grade_dic = { grade: 5, tag: [] };
+    const id = parseInt(req.params["id"]);
 
-    const property = await db.collection(dbName)
-      .where("id", "==", id)
-      .get();
+    const query = await db.collection(dbName).where("id", "==", id).get();
 
-    console.log(id);
-
-    property = property.docs.map((doc) =>
-      Object.assign(doc.data(), { id: doc.id })
-    )
+    try {
+      property = query.docs.map((doc) =>
+        Object.assign(doc.data(), { id: doc.id })
+      )[0];
+    } catch (error) {
+      Logger.error("Property not found");
+      return Response.handle400BadRequest(res, "Property not found");
+    }
 
     grade_dic = garden(property, grade_dic);
+    grade_dic = noisAndAccessibility(property, grade_dic);
+    grade_dic = pieceAndSize(property, grade_dic);
 
-
-    logger.info('Property succefully grade')
-    return Response.handle200Success(res, 'Property succefully grade', grade_dic)
-
-
+    logger.info("Property succefully grade");
+    return Response.handle200Success(
+      res,
+      "Property succefully graded",
+      grade_dic
+    );
   } catch (error) {
-    logger.error('[get_grade](500): ' + error.message);
-    return Response.handle500InternalServerError(res, error.message, error.stack)
+    logger.error("[get_grade](500): " + error.message);
+    return Response.handle500InternalServerError(
+      res,
+      error.message,
+      error.stack
+    );
   }
 }
 

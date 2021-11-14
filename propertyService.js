@@ -116,37 +116,37 @@ async function filter_properties(req, res) {
       respect_filter = true;
 
       for (const key in minmax) {
-        if (key === "maxprice" && minmax[key] <= property["Valeur fonciere"]) {
+        if (key === "maxPrice" && minmax[key] <= property["Valeur fonciere"]) {
           respect_filter = false;
           break;
         }
-        if (key === "minprice" && minmax[key] >= property["Valeur fonciere"]) {
+        if (key === "minPrice" && minmax[key] >= property["Valeur fonciere"]) {
           respect_filter = false;
           break;
         }
         if (
-          key === "maxsize" &&
+          key === "maxSize" &&
           minmax[key] <= property["Surface reelle bati"]
         ) {
           respect_filter = false;
           break;
         }
         if (
-          key === "minsize" &&
+          key === "minSize" &&
           minmax[key] >= property["Surface reelle bati"]
         ) {
           respect_filter = false;
           break;
         }
         if (
-          key === "maxpiece" &&
+          key === "maxRooms" &&
           minmax[key] <= property["Nombre pieces principales"]
         ) {
           respect_filter = false;
           break;
         }
         if (
-          key === "minpiece" &&
+          key === "minRooms" &&
           minmax[key] >= property["Nombre pieces principales"]
         ) {
           respect_filter = false;

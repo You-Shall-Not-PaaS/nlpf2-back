@@ -3,7 +3,7 @@ const _ = require('lodash')
 
 const Response = require('./utils/response')
 const logger = require("./utils/logger");
-const {format_property} = require("./utils/formatter")
+const {format_property, query_to_array} = require("./utils/formatter")
 const configFileName = "./key.json"
 const serviceAccount = require(configFileName);
 
@@ -50,71 +50,42 @@ async function filter_properties(req, res) {
     return Response.handle400BadRequest(res, 'Request query is undefined')
   }
 
-  try {
+  //try {
     const page = parseInt(req.params.page);
     const filter = req.query;
 
-    var query = 'db.collection(dbName)';
+    var query = db.collection(dbName);
     var minmax = [];
     for (key in filter) {
       if (key === "code_postal") {
-        query =
-          query +
-          ".where(" +
-          '"Code postal"' +
-          ',"==",' +
-          '"' +
-          filter[key] +
-          '"' +
-          ")";
+        query =query.where("Code postal", "==", filter[key]);
       } else if (key === "type_local") {
-        if (filter[key] === "Autre") {
-          query =
-            query +
-            ".where(" +
-            '"Type local"' +
-            ',"not-in",' +
-            '["Maison", "Appartement"]' +
-            ")";
+        if (filter[key] != "Autre") {
+          query = query.where("Type local", "==", filter[key]);
         } else {
-          query =
-            query +
-            ".where(" +
-            '"Type local"' +
-            ',"==",' +
-            '"' +
-            filter[key] +
-            '"' +
-            ")";
+          minmax[key] = filter[key];
         }
-      } else if (key === "commune") {
-        query =
-          query +
-          ".where(" +
-          '"Commune"' +
-          ',"==",' +
-          '"' +
-          filter[key] +
-          '"' +
-          ")";
+      } else if (key === "cities") {
+        communes = query_to_array(filter[key]);
+        query = query.where("Commune", "in", communes);
+
       } else {
         minmax[key] = filter[key]
       }
     }
 
-    query = query + ".get();";
 
-    const properties = await eval(query);
+    const properties = await query.get();
     const dict_properties = properties.docs.map((doc) =>
       Object.assign(doc.data(), { id: doc.id })
     );
     var filter_properties = [];
     var count = 0;
 
+    console.log(minmax)
     for (i = 0; i < Object.keys(dict_properties).length; i++) {
       property = dict_properties[i];
       respect_filter = true;
-
       for (const key in minmax) {
         if (key === "maxPrice" && parseInt(minmax[key]) <= property["Valeur fonciere"]) {
           respect_filter = false;
@@ -140,15 +111,20 @@ async function filter_properties(req, res) {
         }
         if (
           key === "maxRooms" &&
-          parseInt(minmax[key]) <= property["Nombre de pieces principales"]
+          parseInt(minmax[key]) <= property["Nombre pieces principales"]
         ) {
           respect_filter = false;
           break;
         }
         if (
           key === "minRooms" &&
-          parseInt(minmax[key]) >= property["Nombre de pieces principales"]
+          parseInt(minmax[key]) >= property["Nombre pieces principales"]
         ) {
+          respect_filter = false;
+          break;
+        }
+        if (key === "type_local" && (property["Type local"] === "Maison" || property["Type local"] ==="Appartement"))
+        {
           respect_filter = false;
           break;
         }
@@ -170,10 +146,10 @@ async function filter_properties(req, res) {
 
     logger.info('Properties succesfully retrieved')
     return Response.handle200Success(res, 'Properties succesfully filtered', filter_properties)
-  } catch (error) {
+  /*} catch (error) {
     logger.error('[FilterProperties](500): ' + error.message);
     return Response.handle500InternalServerError(res, error.message, error.stack)
-  }
+  }*/
 }
 
 async function get_average_price(req, res) {

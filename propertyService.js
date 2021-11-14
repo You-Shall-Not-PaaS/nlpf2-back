@@ -15,10 +15,6 @@ const db = fireBase.firestore();
 const dbName = "valeurs-foncieres"
 const page_size = 30
 
-function test(l) {
-  console.log(l);
-}
-
 async function get_paginated_property(req, res) {
   try {
     const page = parseInt(req.params.page);

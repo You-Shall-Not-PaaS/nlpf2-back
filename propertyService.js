@@ -1,4 +1,5 @@
 const fireBase = require("firebase-admin");
+const _ = require('lodash')
 
 const Response = require('./utils/response')
 const logger = require("./utils/logger");
@@ -164,7 +165,45 @@ async function filter_properties(req, res) {
   }
 }
 
+async function get_average_price(req, res) {
+  try {
+    const id = parseInt(req.params.id);
+    const query = db.collection(dbName);
+    const property = await query
+      .where('id', '==', id)
+      .get();
+    const property_doc = property.docs.map((doc) =>
+      Object.assign(doc.data(), { id: doc.id }))
+
+    const propertyType = property_doc[0]["Type local"]
+    const propertyPostalCode = property_doc[0]["Code postal"]
+    const prices_array = await get_prices(propertyType, propertyPostalCode)
+    const mean = _.mean(prices_array)
+    const average_price = _.round(mean, 0)
+
+    return Response.handle200Success(res, 'Town average properties price succesfully retrieved', average_price)
+  } catch (error) {
+    logger.error('[GetAveragePrice](500): ' + error.message);
+    return Response.handle500InternalServerError(res, error.message, error.stack)
+  }
+}
+
+async function get_prices(propertyType, propertyPostalCode) {
+  const query = db.collection(dbName);
+  const properties = await query
+    .where('Code postal', '==', propertyPostalCode)
+    .where('Type local', '==', propertyType)
+    .get();
+  const properties_doc = properties.docs.map((doc) =>
+    Object.assign(doc.data(), { id: doc.id }))
+  const prices = properties_doc.map(prop => {
+    return prop["Valeur fonciere"]
+  })
+  return prices
+}
+
 module.exports = {
   get_paginated_property: get_paginated_property,
   filter_properties: filter_properties,
+  get_average_price: get_average_price
 };

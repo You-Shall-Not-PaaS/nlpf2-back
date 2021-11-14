@@ -214,7 +214,6 @@ async function get_similar_properties(req, res) {
 }
 
 async function get_grade(req, res) {
-  console.log("test");
   try {
     var grade_dic = { grade: 5, tag: [] };
     const id = parseInt(req.params["id"]);

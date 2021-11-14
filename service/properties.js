@@ -6,7 +6,7 @@ const { db, page_size, dbName } = require('../config')
 const { deviation, median } = require("../utils/math")
 const { format_property, query_to_array } = require("../utils/formatter")
 const { get_town_prices, sort_properties } = require('./utils')
-const { garden } = require("./grade/intern_grading")
+const {garden, noisAndAccessibility, pieceAndSize} = require("./grade/intern_grading")
 
 async function get_paginated_properties(req, res) {
   try {
@@ -214,6 +214,7 @@ async function get_similar_properties(req, res) {
 }
 
 async function get_grade(req, res) {
+  console.log("test");
   try {
     var grade_dic = { grade: 5, tag: [] };
     const id = parseInt(req.params["id"]);

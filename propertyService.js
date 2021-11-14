@@ -140,7 +140,7 @@ async function filter_properties(req, res) {
         }
         if (
           key === "maxRooms" &&
-          parseInt(minmax[key]) <= property["Nombre pieces principales"]
+          parseInt(minmax[key]) <= property["Nombre de pieces principales"]
         ) {
           respect_filter = false;
           break;

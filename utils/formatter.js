@@ -1,5 +1,5 @@
 function format_property(property) {
-    property["1er lot"] =  parseInt(property["1er lot"]);
+    property["1er lot"] = parseInt(property["1er lot"]);
     property["Code commune"] = parseInt(property["Code commune"]);
     property["No plan"] = parseInt(property["No plan"]);
     property["No voie"] = parseInt(property["No voie"]);
@@ -11,12 +11,11 @@ function format_property(property) {
 }
 
 function query_to_array(query) {
-    var ans = query.split(',');
+    const ans = query.split(',');
     return ans;
 }
 
 module.exports = {
     format_property: format_property,
     query_to_array: query_to_array,
-
-  };
+};

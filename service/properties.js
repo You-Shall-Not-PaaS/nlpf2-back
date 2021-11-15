@@ -6,7 +6,7 @@ const { db, page_size, dbName } = require('../config')
 const { deviation, median } = require("../utils/math")
 const { format_property, query_to_array } = require("../utils/formatter")
 const { get_town_prices, sort_properties } = require('./utils')
-const {garden, noisAndAccessibility, pieceAndSize} = require("./grade/intern_grading")
+const { garden, noisAndAccessibility, roomAndSize } = require("./grade/intern_grading");
 
 async function get_paginated_properties(req, res) {
   try {
@@ -38,12 +38,11 @@ async function get_paginated_properties(req, res) {
 
 async function filter_properties(req, res) {
   if (Object.keys(req.query).length === 0) {
-    logger.error('[FilterProperties] Request query is undefined')
-    return Response.handle400BadRequest(res, 'Request query is undefined')
+    logger.error("[FilterProperties] Request query is undefined");
+    return Response.handle400BadRequest(res, "Request query is undefined");
   }
 
   try {
-
     const page = parseInt(req.params.page);
     const filter = req.query;
     var query = db.collection(dbName);
@@ -60,12 +59,10 @@ async function filter_properties(req, res) {
       } else if (key === "cities") {
         communes = query_to_array(filter[key]);
         query = query.where("Commune", "in", communes);
-
       } else {
         minmax[key] = filter[key];
       }
     }
-
 
     const properties = await query.get();
     const dict_properties = properties.docs.map((doc) =>
@@ -78,11 +75,17 @@ async function filter_properties(req, res) {
       property = dict_properties[i];
       respect_filter = true;
       for (const key in minmax) {
-        if (key === "maxPrice" && parseInt(minmax[key]) <= property["Valeur fonciere"]) {
+        if (
+          key === "maxPrice" &&
+          parseInt(minmax[key]) <= property["Valeur fonciere"]
+        ) {
           respect_filter = false;
           break;
         }
-        if (key === "minPrice" && parseInt(minmax[key]) >= property["Valeur fonciere"]) {
+        if (
+          key === "minPrice" &&
+          parseInt(minmax[key]) >= property["Valeur fonciere"]
+        ) {
           respect_filter = false;
           break;
         }
@@ -114,7 +117,11 @@ async function filter_properties(req, res) {
           respect_filter = false;
           break;
         }
-        if (key === "type_local" && (property["Type local"] === "Maison" || property["Type local"] === "Appartement")) {
+        if (
+          key === "type_local" &&
+          (property["Type local"] === "Maison" ||
+            property["Type local"] === "Appartement")
+        ) {
           respect_filter = false;
           break;
         }
@@ -150,11 +157,10 @@ async function get_average_price(req, res) {
   try {
     const id = parseInt(req.params.id);
     const query = db.collection(dbName);
-    const property = await query
-      .where('id', '==', id)
-      .get();
+    const property = await query.where("id", "==", id).get();
     const property_doc = property.docs.map((doc) =>
-      Object.assign(doc.data(), { id: doc.id }))
+      Object.assign(doc.data(), { id: doc.id })
+    );
 
     const propertyType = property_doc[0]["Type local"]
     const propertyPostalCode = property_doc[0]["Code postal"]
@@ -173,8 +179,12 @@ async function get_average_price(req, res) {
     logger.info('Town average properties price successfully retrieved')
     return Response.handle200Success(res, 'Town average properties price successfully retrieved', body)
   } catch (error) {
-    logger.error('[GetAveragePrice](500): ' + error.message);
-    return Response.handle500InternalServerError(res, error.message, error.stack)
+    logger.error("[GetAveragePrice](500): " + error.message);
+    return Response.handle500InternalServerError(
+      res,
+      error.message,
+      error.stack
+    );
   }
 }
 
@@ -231,7 +241,7 @@ async function get_grade(req, res) {
 
     grade_dic = garden(property, grade_dic);
     grade_dic = noisAndAccessibility(property, grade_dic);
-    grade_dic = pieceAndSize(property, grade_dic);
+    grade_dic = roomAndSize(property, grade_dic);
 
     logger.info("Property succefully grade");
     return Response.handle200Success(

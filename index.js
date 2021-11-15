@@ -30,4 +30,6 @@ app.get('/properties-filter/:page/', filter_properties)
 app.get('/properties/town/average-price/:id', get_average_price)
 
 
-module.exports = app
+module.exports = {
+  app
+};

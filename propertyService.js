@@ -3,6 +3,7 @@ const _ = require('lodash')
 
 const Response = require('./utils/response')
 const logger = require("./utils/logger");
+const { deviation, median } = require("./utils/math")
 const { format_property, query_to_array } = require("./utils/formatter")
 const configFileName = "./key.json"
 const serviceAccount = require(configFileName);
@@ -30,8 +31,8 @@ async function get_paginated_property(req, res) {
     );
     response.forEach(format_property);
 
-    logger.info('Properties succesfully retrieved');
-    return Response.handle200Success(res, 'Properties succesfully retrieved', response);
+    logger.info('Properties successfully retrieved');
+    return Response.handle200Success(res, 'Properties successfully retrieved', response);
 
   } catch (error) {
     logger.error('[PaginateProperties](500): ' + error.message);
@@ -137,8 +138,8 @@ async function filter_properties(req, res) {
 
     filter_properties.forEach(format_property);
 
-    logger.info('Properties succesfully retrieved')
-    return Response.handle200Success(res, 'Properties succesfully filtered', filter_properties)
+    logger.info('Properties successfully retrieved')
+    return Response.handle200Success(res, 'Properties successfully filtered', filter_properties)
   } catch (error) {
     logger.error('[FilterProperties](500): ' + error.message);
     return Response.handle500InternalServerError(res, error.message, error.stack)
@@ -160,8 +161,15 @@ async function get_average_price(req, res) {
     const prices_array = await get_prices(propertyType, propertyPostalCode)
     const mean = _.mean(prices_array)
     const average_price = _.round(mean, 0)
+    const standard_deviation = _.round(deviation(prices_array), 0)
+    const median_price = median(prices_array)
+    const body = {
+      average_price: average_price,
+      standard_deviation: standard_deviation,
+      median_price: median_price
+    }
 
-    return Response.handle200Success(res, 'Town average properties price succesfully retrieved', average_price)
+    return Response.handle200Success(res, 'Town average properties price successfully retrieved', body)
   } catch (error) {
     logger.error('[GetAveragePrice](500): ' + error.message);
     return Response.handle500InternalServerError(res, error.message, error.stack)

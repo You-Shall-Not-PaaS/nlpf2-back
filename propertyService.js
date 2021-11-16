@@ -166,7 +166,8 @@ async function get_average_price(req, res) {
     const body = {
       average_price: average_price,
       standard_deviation: standard_deviation,
-      median_price: median_price
+      median_price: median_price,
+      sample_size: prices_array.length
     }
 
     return Response.handle200Success(res, 'Town average properties price successfully retrieved', body)

@@ -162,6 +162,7 @@ async function get_average_price(req, res) {
       sample_size: prices_array.length
     }
 
+    logger.info('Town average properties price successfully retrieved')
     return Response.handle200Success(res, 'Town average properties price successfully retrieved', body)
   } catch (error) {
     logger.error('[GetAveragePrice](500): ' + error.message);
@@ -169,8 +170,86 @@ async function get_average_price(req, res) {
   }
 }
 
+async function get_prices(propertyType, propertyPostalCode) {
+  const query = db.collection(dbName);
+  const properties = await query
+    .where('Code postal', '==', propertyPostalCode)
+    .where('Type local', '==', propertyType)
+    .get();
+  const properties_doc = properties.docs.map((doc) =>
+    Object.assign(doc.data(), { id: doc.id }))
+  const prices = properties_doc.map(prop => {
+    return prop["Valeur fonciere"]
+  })
+  return prices
+}
+
+async function get_similar_properties(req, res) {
+  if (Object.keys(req.body).length === 0) {
+    logger.error('[GetSimilarProperties] Request body is undefined')
+    return Response.handle400BadRequest(res, 'Request body is undefined')
+  }
+  try {
+    const property = req.body.property
+    const propertyType = property["type_local"]
+    const propertyCountyCode = property["code_departement"]
+    const propertyValue = parseFloat(property["valeur_fonciere"])
+    const propertyBuiltSurface = parseFloat(property["surface_bati"])
+    const propertyTotalSurface = parseFloat(property["surface_terrain"])
+    const propertyRoomsNumber = parseFloat(property["nombre_pieces_principales"])
+    const query = db.collection(dbName);
+    const properties = await query
+      .where('Code departement', '==', propertyCountyCode)
+      .where('Type local', '==', propertyType)
+      .get();
+    const property_doc = properties.docs.map((doc) =>
+      Object.assign(doc.data(), { id: doc.id }))
+    const filter_body = {
+      builtSurface: propertyBuiltSurface,
+      totalSurface: propertyTotalSurface,
+      roomsNumber: propertyRoomsNumber,
+      value: propertyValue
+    }
+    const filtered_properties = filter_properties(property_doc, filter_body)
+    logger.info('Similar properties successfully retrieved')
+    return Response.handle200Success(res, 'Similar properties successfully retrieved', filtered_properties)
+  } catch (error) {
+    logger.error('[GetSimilarProperties](500): ' + error.message);
+    return Response.handle500InternalServerError(res, error.message, error.stack)
+  }
+}
+
+function filter_properties(doc, filter) {
+  // 20% price gap
+  const min_price = filter.value * 0.8
+  const max_price = filter.value * 1.2
+
+  // 20% price gap
+  const min_built_surface = filter.builtSurface * 0.8
+  const max_built_surface = filter.builtSurface * 1.2
+
+  const min_rooms = filter.roomsNumber > 0 ? filter.roomsNumber - 1 : 0
+  const max_rooms = filter.roomsNumber + 2
+
+  var result = []
+  for (var k in doc) {
+    if (doc[k]['Surface reelle bati'] <= max_built_surface
+      && doc[k]['Surface reelle bati'] >= min_built_surface) {
+      if (doc[k]['Valeur fonciere'] <= max_price
+        && doc[k]['Valeur fonciere'] >= min_price) {
+        if (doc[k]['Nombre pieces principales'] >= min_rooms
+          && doc[k]['Nombre pieces principales'] <= max_rooms) {
+          result.push(doc[k])
+        }
+      }
+    }
+  }
+  return result
+}
+
 module.exports = {
   get_paginated_properties: get_paginated_properties,
   filter_properties: filter_properties,
-  get_average_price: get_average_price
+  get_average_price: get_average_price,
+  get_similar_properties: get_similar_properties
 };

@@ -1,4 +1,4 @@
-const { db, dbName} = require('../config')
+const { db, dbName } = require('../config')
 
 async function get_town_prices(propertyType, propertyPostalCode) {
   const query = db.collection(dbName);

@@ -243,6 +243,10 @@ async function get_grade(req, res) {
     grade_dic = noisAndAccessibility(property, grade_dic);
     grade_dic = roomAndSize(property, grade_dic);
 
+    if (grade_dic["grade"] > 10) {
+      grade_dic["grade"] = 10;
+    } 
+
     logger.info("Property succefully grade");
     return Response.handle200Success(
       res,

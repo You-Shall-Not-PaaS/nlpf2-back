@@ -1,15 +1,16 @@
 const express = require('express');
-var cors = require('cors')
-
-const { get_paginated_properties, filter_properties, get_average_price } = require('./service/properties');
-
-
+const cors = require('cors')
 const app = express();
 
-app.use(cors({
-  origin: '*'
-}));
+const Property = require('./service/properties');
 
+app.use(cors());
+
+// Parse requests of content-type: application/json
+app.use(express.json({ limit: '50mb' }));
+
+// Parse requests of content-type: application/x-www-form-urlencoded
+app.use(express.urlencoded({ extended: true }));
 
 //local debug
 const PORT = 5555;
@@ -23,11 +24,13 @@ app.get('/', (req, res) => {
   res.send("hello NLPF");
 });
 
-app.get('/properties/:page/', get_paginated_properties);
+app.get('/properties/:page/', Property.get_paginated_properties);
 
-app.get('/properties-filter/:page/', filter_properties)
+app.get('/properties-filter/:page/', Property.filter_properties)
 
-app.get('/properties/town/average-price/:id', get_average_price)
+app.get('/properties/town/average-price/:id', Property.get_average_price)
+
+app.post('/properties/similar', Property.get_similar_properties)
 
 module.exports = {
   app

@@ -5,7 +5,7 @@ const logger = require("../utils/logger");
 const { db, page_size, dbName } = require('../config')
 const { deviation, median } = require("../utils/math")
 const { format_property, query_to_array } = require("../utils/formatter")
-const { get_town_prices } = require('./utils')
+const { get_town_prices, sort_properties } = require('./utils')
 
 
 async function get_paginated_properties(req, res) {
@@ -162,6 +162,7 @@ async function get_average_price(req, res) {
       sample_size: prices_array.length
     }
 
+    logger.info('Town average properties price successfully retrieved')
     return Response.handle200Success(res, 'Town average properties price successfully retrieved', body)
   } catch (error) {
     logger.error('[GetAveragePrice](500): ' + error.message);
@@ -169,8 +170,46 @@ async function get_average_price(req, res) {
   }
 }
 
+async function get_similar_properties(req, res) {
+  if (Object.keys(req.body).length === 0) {
+    logger.error('[GetSimilarProperties] Request body is undefined')
+    return Response.handle400BadRequest(res, 'Request body is undefined')
+  }
+  try {
+    const property = req.body.property
+    const propertyType = property["type_local"]
+    const propertyCountyCode = property["code_departement"]
+    const propertyValue = parseFloat(property["valeur_fonciere"])
+    const propertyBuiltSurface = parseFloat(property["surface_bati"])
+    const propertyTotalSurface = parseFloat(property["surface_terrain"])
+    const propertyRoomsNumber = parseFloat(property["nombre_pieces_principales"])
+    const query = db.collection(dbName);
+    const properties = await query
+      .where('Code departement', '==', propertyCountyCode)
+      .where('Type local', '==', propertyType)
+      .get();
+    const property_doc = properties.docs.map((doc) =>
+      Object.assign(doc.data(), { id: doc.id }))
+    const filter_body = {
+      builtSurface: propertyBuiltSurface,
+      totalSurface: propertyTotalSurface,
+      roomsNumber: propertyRoomsNumber,
+      value: propertyValue
+    }
+    const filtered_properties = sort_properties(property_doc, filter_body)
+    logger.info('Similar properties successfully retrieved')
+    return Response.handle200Success(res, 'Similar properties successfully retrieved', filtered_properties)
+  } catch (error) {
+    logger.error('[GetSimilarProperties](500): ' + error.message);
+    return Response.handle500InternalServerError(res, error.message, error.stack)
+  }
+}
+
+
+
 module.exports = {
   get_paginated_properties: get_paginated_properties,
   filter_properties: filter_properties,
-  get_average_price: get_average_price
+  get_average_price: get_average_price,
+  get_similar_properties: get_similar_properties
 };

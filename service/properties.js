@@ -1,22 +1,14 @@
-const fireBase = require("firebase-admin");
 const _ = require('lodash')
 
-const Response = require('./utils/response')
-const logger = require("./utils/logger");
-const { deviation, median } = require("./utils/math")
-const { format_property, query_to_array } = require("./utils/formatter")
-const configFileName = "./key.json"
-const serviceAccount = require(configFileName);
+const Response = require('../utils/response')
+const logger = require("../utils/logger");
+const { db, page_size, dbName } = require('../config')
+const { deviation, median } = require("../utils/math")
+const { format_property, query_to_array } = require("../utils/formatter")
+const { get_town_prices } = require('./utils')
 
-fireBase.initializeApp({
-  credential: fireBase.credential.cert(serviceAccount),
-});
 
-const db = fireBase.firestore();
-const dbName = "valeurs-foncieres"
-const page_size = 30
-
-async function get_paginated_property(req, res) {
+async function get_paginated_properties(req, res) {
   try {
     const page = parseInt(req.params.page);
     const query = db.collection(dbName);
@@ -158,7 +150,7 @@ async function get_average_price(req, res) {
 
     const propertyType = property_doc[0]["Type local"]
     const propertyPostalCode = property_doc[0]["Code postal"]
-    const prices_array = await get_prices(propertyType, propertyPostalCode)
+    const prices_array = await get_town_prices(propertyType, propertyPostalCode)
     const mean = _.mean(prices_array)
     const average_price = _.round(mean, 0)
     const standard_deviation = _.round(deviation(prices_array), 0)
@@ -177,22 +169,8 @@ async function get_average_price(req, res) {
   }
 }
 
-async function get_prices(propertyType, propertyPostalCode) {
-  const query = db.collection(dbName);
-  const properties = await query
-    .where('Code postal', '==', propertyPostalCode)
-    .where('Type local', '==', propertyType)
-    .get();
-  const properties_doc = properties.docs.map((doc) =>
-    Object.assign(doc.data(), { id: doc.id }))
-  const prices = properties_doc.map(prop => {
-    return prop["Valeur fonciere"]
-  })
-  return prices
-}
-
 module.exports = {
-  get_paginated_property: get_paginated_property,
+  get_paginated_properties: get_paginated_properties,
   filter_properties: filter_properties,
   get_average_price: get_average_price
 };

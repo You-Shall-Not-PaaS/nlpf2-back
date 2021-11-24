@@ -1,7 +1,7 @@
 const express = require('express');
 var cors = require('cors')
 
-const { get_paginated_property, filter_properties, get_average_price } = require('./propertyService');
+const { get_paginated_properties, filter_properties, get_average_price } = require('./service/properties');
 
 
 const app = express();
@@ -23,12 +23,11 @@ app.get('/', (req, res) => {
   res.send("hello NLPF");
 });
 
-app.get('/properties/:page/', get_paginated_property);
+app.get('/properties/:page/', get_paginated_properties);
 
 app.get('/properties-filter/:page/', filter_properties)
 
 app.get('/properties/town/average-price/:id', get_average_price)
-
 
 module.exports = {
   app

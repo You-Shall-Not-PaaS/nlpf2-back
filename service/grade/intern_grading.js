@@ -8,16 +8,16 @@ function garden(property, grade_dic) {
   if (garden > 0) {
     if (garden >= 800) {
       grade_dic.grade += 0.5;
-      grade_dic.tag.push(["Terrain", "Bon"]);
+      grade_dic.tag.push(["Terrain,Bon"]);
     } else if (garden >= 100) {
       grade_dic.grade += 1;
-      grade_dic.tag.push(["Grand jardin", "Bon"]);
+      grade_dic.tag.push(["Grand jardin,Bon"]);
     } else if (garden >= 30) {
       grade_dic.grade += 0.5;
-      grade_dic.tag.push(["Jardin", "Bon"]);
+      grade_dic.tag.push(["Jardin,Bon"]);
     } else {
       grade_dic.grade += 0.25;
-      grade_dic.tag.push(["Terasse", "Ok"]);
+      grade_dic.tag.push(["Terasse,Ok"]);
     }
   }
 
@@ -32,34 +32,34 @@ function noiseAndAccessibility(property, grade_dic) {
     ["CHE", "DOM", "COR", "ESP", "HAM", "LD", "PRO", "SEN", "VLA", "PLN"]
   ) {
     grade_dic.grade += 1;
-    grade_dic.tag.push(["Vert", "Bon"]);
+    grade_dic.tag.push(["Vert,Bon"]);
   }
   if (property["Type de voie"] in ["DOM", "PLN", "PLT", "VLA"]) {
     grade_dic.grade += 0.75;
-    grade_dic.tag.push(["Très Calme", "Bon"]);
+    grade_dic.tag.push(["Très Calme,Bon"]);
   }
   if (property["Type de voie"] in ["CHE", "ECA", "RES", "SEN", "VLGE"]) {
     grade_dic.grade += 0.6;
-    grade_dic.tag.push(["Calme", "Bon"]);
+    grade_dic.tag.push(["Calme,Bon"]);
   }
   if (property["Type de voie"] in ["ROC", "CAR"]) {
     grade_dic.grade += -1;
-    grade_dic.tag.push(["Très Bruyant", "Mauvais"]);
+    grade_dic.tag.push(["Très Bruyant,Mauvais"]);
   }
   if (property["Type de voie"] in ["AV", "BD", "RPT", "RTE"]) {
     grade_dic.grade += -0.5;
-    grade_dic.tag.push(["Bruyant", "Mauvais"]);
+    grade_dic.tag.push(["Bruyant,Mauvais"]);
   }
   if (property["Type de voie"] in ["COR", "VLA", "LD"]) {
     grade_dic.grade += 1;
-    grade_dic.tag.push(["Belle Vue", "Bon"]);
+    grade_dic.tag.push(["Belle Vue,Bon"]);
   }
   if (property["Type de voie"] in ["CITE"]) {
     grade_dic.grade += -0.3;
   }
   if (property["Type de voie"] in ["HLE", "PL", "PRV", "MAR"]) {
     grade_dic.grade += 0.2;
-    grade_dic.tag.push(["Centre-ville", "Neutre"]);
+    grade_dic.tag.push(["Centre-ville,Neutre"]);
   }
 
   return grade_dic;
@@ -76,12 +76,12 @@ function roomAndSize(property, grade_dic) {
   if (size > 30) {
     if (ratio < 10) {
       grade_dic.grade += -(0.5 + ratio / 20);
-      grade_dic.tag.push(["Petites pieces", "Mauvais"]);
+      grade_dic.tag.push(["Petites pieces,Mauvais"]);
     } else if (ratio < 30) {
       grade_dic.grade += 0.2 + ratio / 50;
     } else {
       grade_dic.grade += 0.5 + ratio / 50;
-      grade_dic.tag.push(["Grandes pieces", "Bon"]);
+      grade_dic.tag.push(["Grandes pieces,Bon"]);
     }
   }
   return grade_dic;

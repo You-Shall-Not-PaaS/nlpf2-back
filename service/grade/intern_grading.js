@@ -1,4 +1,4 @@
-// TresBon > Bon > Ok > Neutre > Bof > Mauvais > TresMauvais
+// Bon > Ok > Mauvais  Neutre
 
 function garden(property, grade_dic) {
   terrain = parseInt(property["Surface terrain"]);
@@ -11,7 +11,7 @@ function garden(property, grade_dic) {
       grade_dic.tag.push(["Terrain", "Bon"]);
     } else if (garden >= 100) {
       grade_dic.grade += 1;
-      grade_dic.tag.push(["Grand jardin", "TresBon"]);
+      grade_dic.tag.push(["Grand jardin", "Bon"]);
     } else if (garden >= 30) {
       grade_dic.grade += 0.5;
       grade_dic.tag.push(["Jardin", "Bon"]);
@@ -32,11 +32,11 @@ function noiseAndAccessibility(property, grade_dic) {
     ["CHE", "DOM", "COR", "ESP", "HAM", "LD", "PRO", "SEN", "VLA", "PLN"]
   ) {
     grade_dic.grade += 1;
-    grade_dic.tag.push(["Vert", "TresBon"]);
+    grade_dic.tag.push(["Vert", "Bon"]);
   }
   if (property["Type de voie"] in ["DOM", "PLN", "PLT", "VLA"]) {
     grade_dic.grade += 0.75;
-    grade_dic.tag.push(["Très Calme", "TresBon"]);
+    grade_dic.tag.push(["Très Calme", "Bon"]);
   }
   if (property["Type de voie"] in ["CHE", "ECA", "RES", "SEN", "VLGE"]) {
     grade_dic.grade += 0.6;
@@ -44,7 +44,7 @@ function noiseAndAccessibility(property, grade_dic) {
   }
   if (property["Type de voie"] in ["ROC", "CAR"]) {
     grade_dic.grade += -1;
-    grade_dic.tag.push(["Très Bruyant", "TresMauvais"]);
+    grade_dic.tag.push(["Très Bruyant", "Mauvais"]);
   }
   if (property["Type de voie"] in ["AV", "BD", "RPT", "RTE"]) {
     grade_dic.grade += -0.5;
@@ -52,14 +52,14 @@ function noiseAndAccessibility(property, grade_dic) {
   }
   if (property["Type de voie"] in ["COR", "VLA", "LD"]) {
     grade_dic.grade += 1;
-    grade_dic.tag.push(["Belle Vue", "TresBon"]);
+    grade_dic.tag.push(["Belle Vue", "Bon"]);
   }
   if (property["Type de voie"] in ["CITE"]) {
     grade_dic.grade += -0.3;
   }
   if (property["Type de voie"] in ["HLE", "PL", "PRV", "MAR"]) {
     grade_dic.grade += 0.2;
-    grade_dic.tag.push(["Centre-ville", "OK"]);
+    grade_dic.tag.push(["Centre-ville", "Neutre"]);
   }
 
   return grade_dic;

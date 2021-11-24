@@ -53,7 +53,7 @@ async function filter_properties(req, res) {
         } else {
           minmax[key] = filter[key];
         }
-      } else if (key === "cities") {
+      } else if (key === "commune") {
         communes = query_to_array(filter[key]);
         query = query.where("Commune", "in", communes);
 

@@ -56,7 +56,7 @@ async function filter_properties(req, res) {
         } else {
           minmax[key] = filter[key];
         }
-      } else if (key === "cities") {
+      } else if (key === "commune") {
         communes = query_to_array(filter[key]);
         query = query.where("Commune", "in", communes);
       } else {
@@ -161,7 +161,7 @@ async function get_average_price(req, res) {
     const property_doc = property.docs.map((doc) =>
       Object.assign(doc.data(), { id: doc.id })
     );
-
+    console.log(property_doc);
     const propertyType = property_doc[0]["Type local"]
     const propertyPostalCode = property_doc[0]["Code postal"]
     const prices_array = await get_town_prices(propertyType, propertyPostalCode)

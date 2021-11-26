@@ -1,3 +1,5 @@
+const _ = require('lodash')
+
 const { db, dbName } = require('../config')
 
 async function get_town_prices(propertyType, propertyPostalCode) {
@@ -9,7 +11,7 @@ async function get_town_prices(propertyType, propertyPostalCode) {
   const properties_doc = properties.docs.map((doc) =>
     Object.assign(doc.data(), { id: doc.id }))
   const prices = properties_doc.map(prop => {
-    return prop["Valeur fonciere"]
+    return _.round(prop["Valeur fonciere"] / prop["Surface reelle bati"], 0);
   })
   return prices
 }

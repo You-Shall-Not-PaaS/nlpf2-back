@@ -5,7 +5,7 @@ const logger = require("../utils/logger");
 const { db, page_size, dbName } = require('../config')
 const { deviation, median } = require("../utils/math")
 const { format_property, query_to_array } = require("../utils/formatter")
-const { get_town_prices, sort_properties } = require('./utils')
+const { get_town_prices, sort_properties, get_property_by_id } = require('./utils')
 const { garden, noisAndAccessibility, roomAndSize } = require("./grade/intern_grading");
 
 async function get_paginated_properties(req, res) {
@@ -156,14 +156,9 @@ async function filter_properties(req, res) {
 async function get_average_price(req, res) {
   try {
     const id = parseInt(req.params.id);
-    const query = db.collection(dbName);
-    const property = await query.where("id", "==", id).get();
-    const property_doc = property.docs.map((doc) =>
-      Object.assign(doc.data(), { id: doc.id })
-    );
-    console.log(property_doc);
-    const propertyType = property_doc[0]["Type local"]
-    const propertyPostalCode = property_doc[0]["Code postal"]
+    const property = await get_property_by_id(id)
+    const propertyType = property["Type local"]
+    const propertyPostalCode = property["Code postal"]
     const prices_array = await get_town_prices(propertyType, propertyPostalCode)
     const mean = _.mean(prices_array)
     const average_price = _.round(mean, 0)
@@ -189,18 +184,15 @@ async function get_average_price(req, res) {
 }
 
 async function get_similar_properties(req, res) {
-  if (Object.keys(req.body).length === 0) {
-    logger.error('[GetSimilarProperties] Request body is undefined')
-    return Response.handle400BadRequest(res, 'Request body is undefined')
-  }
   try {
-    const property = req.body.property
-    const propertyType = property["type_local"]
-    const propertyCountyCode = property["code_departement"]
-    const propertyValue = parseFloat(property["valeur_fonciere"])
-    const propertyBuiltSurface = parseFloat(property["surface_bati"])
-    const propertyTotalSurface = parseFloat(property["surface_terrain"])
-    const propertyRoomsNumber = parseFloat(property["nombre_pieces_principales"])
+    const id = parseInt(req.params.id);
+    const property = await get_property_by_id(id)
+    const propertyType = property["Type local"]
+    const propertyCountyCode = property["Code departement"]
+    const propertyValue = parseFloat(property["Valeur fonciere"])
+    const propertyBuiltSurface = parseFloat(property["Surface reelle bati"])
+    const propertyTotalSurface = parseFloat(property["Surface terrain"])
+    const propertyRoomsNumber = parseFloat(property["Nombre pieces principales"])
     const query = db.collection(dbName);
     const properties = await query
       .where('Code departement', '==', propertyCountyCode)
@@ -249,7 +241,7 @@ async function get_grade(req, res) {
 
     if (grade_dic["grade"] > 10) {
       grade_dic["grade"] = 10;
-    } 
+    }
 
     logger.info("Property succefully grade");
     return Response.handle200Success(

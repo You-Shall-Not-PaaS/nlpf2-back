@@ -2,6 +2,15 @@ const _ = require('lodash')
 
 const { db, dbName } = require('../config')
 
+async function get_property_by_id(id) {
+  const query = db.collection(dbName);
+  const prop = await query.where("id", "==", id).get();
+  const property_doc = prop.docs.map((doc) =>
+    Object.assign(doc.data(), { id: doc.id })
+  );
+  return property_doc[0];
+}
+
 async function get_town_prices(propertyType, propertyPostalCode) {
   const query = db.collection(dbName);
   const properties = await query
@@ -43,7 +52,9 @@ function sort_properties(doc, filter) {
   }
   return result
 }
+
 module.exports = {
+  get_property_by_id: get_property_by_id,
   get_town_prices: get_town_prices,
   sort_properties: sort_properties
 }

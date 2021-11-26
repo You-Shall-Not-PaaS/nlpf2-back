@@ -225,7 +225,7 @@ async function get_similar_properties(req, res) {
 
 async function get_grade(req, res) {
   try {
-    var grade_dic = { grade: 5, tag: [] };
+    var grade_dic = { grade: 5, tag: "" };
     const id = parseInt(req.params["id"]);
 
     const query = await db.collection(dbName).where("id", "==", id).get();
@@ -242,6 +242,10 @@ async function get_grade(req, res) {
     grade_dic = garden(property, grade_dic);
     grade_dic = noisAndAccessibility(property, grade_dic);
     grade_dic = roomAndSize(property, grade_dic);
+
+    if (grade_dic.tag != "") {
+        grade_dic.tag = grade_dic.tag.slice(0,-1);
+    }
 
     if (grade_dic["grade"] > 10) {
       grade_dic["grade"] = 10;

@@ -8,16 +8,16 @@ function garden(property, grade_dic) {
   if (garden > 0) {
     if (garden >= 800) {
       grade_dic.grade += 0.5;
-      grade_dic.tag.push(["Terrain,Bon"]);
+      grade_dic.tag.push("Terrain,Bon");
     } else if (garden >= 100) {
       grade_dic.grade += 1;
-      grade_dic.tag.push(["Grand jardin,Bon"]);
+      grade_dic.tag.push("Grand jardin,Bon");
     } else if (garden >= 30) {
       grade_dic.grade += 0.5;
-      grade_dic.tag.push(["Jardin,Bon"]);
+      grade_dic.tag.push("Jardin,Bon");
     } else {
       grade_dic.grade += 0.25;
-      grade_dic.tag.push(["Terasse,Ok"]);
+      grade_dic.tag.push("Terasse,Ok");
     }
   }
 
@@ -36,30 +36,30 @@ function noiseAndAccessibility(property, grade_dic) {
   }
   if (property["Type de voie"] in ["DOM", "PLN", "PLT", "VLA"]) {
     grade_dic.grade += 0.75;
-    grade_dic.tag.push(["Très Calme,Bon"]);
+    grade_dic.tag.push("Très Calme,Bon");
   }
   if (property["Type de voie"] in ["CHE", "ECA", "RES", "SEN", "VLGE"]) {
     grade_dic.grade += 0.6;
-    grade_dic.tag.push(["Calme,Bon"]);
+    grade_dic.tag.push("Calme,Bon");
   }
   if (property["Type de voie"] in ["ROC", "CAR"]) {
     grade_dic.grade += -1;
-    grade_dic.tag.push(["Très Bruyant,Mauvais"]);
+    grade_dic.tag.push("Très Bruyant,Mauvais");
   }
   if (property["Type de voie"] in ["AV", "BD", "RPT", "RTE"]) {
     grade_dic.grade += -0.5;
-    grade_dic.tag.push(["Bruyant,Mauvais"]);
+    grade_dic.tag.push("Bruyant,Mauvais");
   }
   if (property["Type de voie"] in ["COR", "VLA", "LD"]) {
     grade_dic.grade += 1;
-    grade_dic.tag.push(["Belle Vue,Bon"]);
+    grade_dic.tag.push("Belle Vue,Bon");
   }
   if (property["Type de voie"] in ["CITE"]) {
     grade_dic.grade += -0.3;
   }
   if (property["Type de voie"] in ["HLE", "PL", "PRV", "MAR"]) {
     grade_dic.grade += 0.2;
-    grade_dic.tag.push(["Centre-ville,Neutre"]);
+    grade_dic.tag.push("Centre-ville,Neutre");
   }
 
   return grade_dic;

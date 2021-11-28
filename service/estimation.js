@@ -17,7 +17,7 @@ const { get_town_prices, sort_properties, get_property_by_id } = require('./util
 
 async function get_estimation(req, res) {
 
-    //try {
+    try {
         
         var property = {};
         property.commune = req.params.commune;
@@ -36,12 +36,12 @@ async function get_estimation(req, res) {
         Object.assign(doc.data(), { id: doc.id }))
         
         var average_dic = {};
-        average_dic.town = [0, 0, 0.1];
-        average_dic.jardin = [0, 0, 0.1];
-        average_dic.jardin_similaire = [0, 0 , 0.2];
-        average_dic.piece = [0, 0, 0.2];
-        average_dic.surface = [0, 0 , 0.2];
-        average_dic.similaire = [0, 0, 0.5];
+        average_dic.town = [0, 0, 1];  
+        average_dic.jardin = [0, 0, 2];
+        average_dic.jardin_similaire = [0, 0 , 4];  
+        average_dic.piece = [0, 0, 4];
+        average_dic.surface = [0, 0 , 4];
+        average_dic.similaire = [0, 0, 10];
 
         for (var k in property_doc) {
             flag = 0;
@@ -52,7 +52,7 @@ async function get_estimation(req, res) {
             if (property.jardin > 0) {
 ;
             
-                if (jardin >= (property.jardin * 0.7) && jardin <= (property.jardin * 0.13)) {
+                if (jardin >= (property.jardin * 0.7) && jardin <= (property.jardin * 1.3)) {
                     average_dic.jardin_similaire[0] += property_doc[k]['Valeur fonciere'] / property_doc[k]["Surface reelle bati"];
                     average_dic.jardin_similaire[1]++;
                     flag++;
@@ -85,33 +85,33 @@ async function get_estimation(req, res) {
         }
 
         if (average_dic.town[0] === 0) {
+            logger.info("Not enougth data");
             return Response.handle200Success(res, "Not enougth property to compare")
         }
 
         var total_weigth = 0;
         var price = 0;
-        console.log(price)
-        console.log(average_dic)
         for (var k in average_dic) {
             if (average_dic[k][1] != 0) {
-                price += (average_dic[k][0]/average_dic[1][k] * average_dic[k][3]);
-                total_weigth += average_dic[k][3];
+                price += (average_dic[k][0]/average_dic[k][1] * average_dic[k][2]);
+                total_weigth += average_dic[k][2]
             }
         }
         //ponderation and inflation
-        price = (price * (1 + (1 - total_weigth))) * 1.001;
+        price = (price / total_weigth) * 1.001;
 
         ans = {"price": price * property.surface, "price/m2": price, "sample_size": average_dic.town[1]};
+        logger.info("property successfully estimate");
         return Response.handle200Success(res, "Estimation complete", ans);
 
-    /*} catch(error) {
+    } catch(error) {
         logger.error("[get_stimation](500): " + error.message);
         return Response.handle500InternalServerError(
         res,
         error.message,
         error.stack
         );
-    }*/
+    }
 }
 
 module.exports = {

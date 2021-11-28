@@ -25,7 +25,7 @@ app.get('/', (req, res) => {
   res.send("hello NLPF");
 });
 
-app.get('/properties/estimation/:commune/:type/:surface/:room/:garden', Estimation.get_estimation);
+app.get('/properties/estimation/:commune/:type/:surface/:rooms/:garden', Estimation.get_estimation);
 
 app.get('/properties/:page/', Property.get_paginated_properties);
 

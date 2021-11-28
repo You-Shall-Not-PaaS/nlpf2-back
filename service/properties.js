@@ -239,7 +239,7 @@ async function get_grade(req, res) {
         grade_dic.tag = grade_dic.tag.slice(0,-1);
     }
 
-    grade_dic.grade = grade_dic.grade.toFixed(2);
+    grade_dic.grade = grade_dic.grade.toFixed(1);
     
     if (grade_dic["grade"] > 10) {
       grade_dic["grade"] = 10;

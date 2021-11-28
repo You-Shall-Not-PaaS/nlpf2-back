@@ -55,6 +55,8 @@ async function get_estimation(req, res) {
                 if (jardin >= (property.jardin * 0.7) && jardin <= (property.jardin * 1.3)) {
                     average_dic.jardin_similaire[0] += property_doc[k]['Valeur fonciere'] / property_doc[k]["Surface reelle bati"];
                     average_dic.jardin_similaire[1]++;
+                    average_dic.jardin[0] += property_doc[k]['Valeur fonciere'] / property_doc[k]["Surface reelle bati"];
+                    average_dic.jardin[1]++;
                     flag++;
                 }
                 else if  (jardin > 0) {

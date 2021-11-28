@@ -102,7 +102,7 @@ async function get_estimation(req, res) {
         //ponderation and inflation
         price = (price / total_weigth) * 1.001;
 
-        ans = {"price": price * property.surface, "price/m2": price, "sample_size": average_dic.town[1]};
+        ans = {"price": (price * property.surface).toFixed(0), "price/m2": price.toFixed(0), "sample_size": average_dic.town[1]};
         logger.info("property successfully estimate");
         return Response.handle200Success(res, "Estimation complete", ans);
 

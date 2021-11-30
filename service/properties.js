@@ -7,6 +7,7 @@ const { deviation, median } = require("../utils/math")
 const { format_property, query_to_array } = require("../utils/formatter")
 const { get_town_prices, sort_properties, get_property_by_id } = require('./utils')
 const { garden, noisAndAccessibility, roomAndSize } = require("./grade/intern_grading");
+const { split } = require('lodash');
 
 async function get_paginated_properties(req, res) {
   try {
@@ -43,6 +44,7 @@ async function filter_properties(req, res) {
   }
 
   try {
+    console.log("here")
     const page = parseInt(req.params.page);
     const filter = req.query;
     var query = db.collection(dbName);
@@ -56,7 +58,7 @@ async function filter_properties(req, res) {
         } else {
           minmax[key] = filter[key];
         }
-      } else if (key === "commune") {
+      } else if (key === "cities") {
         communes = query_to_array(filter[key]);
         query = query.where("Commune", "in", communes);
       } else {
@@ -64,7 +66,7 @@ async function filter_properties(req, res) {
       }
     }
 
-    const properties = await query.get();
+    const properties = await query.limit(10000).get();
     const dict_properties = properties.docs.map((doc) =>
       Object.assign(doc.data(), { id: doc.id })
     );

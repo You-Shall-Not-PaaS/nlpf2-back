@@ -241,11 +241,11 @@ async function get_grade(req, res) {
         grade_dic.tag = grade_dic.tag.slice(0,-1);
     }
 
-    grade_dic.grade = grade_dic.grade.toFixed(1);
-    
     if (grade_dic["grade"] > 10) {
       grade_dic["grade"] = 10;
     }
+
+    grade_dic.grade = grade_dic.grade.toFixed(1);
 
     logger.info("Property succefully grade");
     return Response.handle200Success(

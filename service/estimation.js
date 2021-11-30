@@ -76,7 +76,8 @@ async function get_estimation(req, res) {
 
         if (average_dic.town[0] === 0) {
             logger.info("Not enougth data");
-            return Response.handle200Success(res, "Not enougth properties to compare")
+            const ans = { "price": "0", "price/m2": "0", "sample_size": -1 };
+            return Response.handle200Success(res, "Not enougth properties to compare", ans);
         }
 
         var total_weigth = 0;

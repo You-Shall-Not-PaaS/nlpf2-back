@@ -49,6 +49,9 @@ function sort_properties(doc, filter) {
         }
       }
     }
+    if (result.length === 20) {
+      return result;
+    }
   }
   return result
 }

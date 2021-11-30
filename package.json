@@ -18,8 +18,12 @@
   },
   "homepage": "https://github.com/You-Shall-Not-PaaS/nlpf2-back#readme",
   "dependencies": {
+    "chokidar": "^3.5.2",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "firebase-admin": "^10.0.0",
-    "nodemon": "^2.0.14"
+    "lodash": "^4.17.21",
+    "nodemon": "^2.0.14",
+    "winston": "^3.3.3"
   }
 }

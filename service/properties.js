@@ -2,7 +2,7 @@ const _ = require('lodash')
 
 const Response = require('../utils/response')
 const logger = require("../utils/logger");
-const { db, page_size, dbName } = require('../config')
+const { db, page_size } = require('../config')
 const { deviation, median } = require("../utils/math")
 const { format_property, query_to_array } = require("../utils/formatter")
 const { get_town_prices, sort_properties, get_property_by_id } = require('./utils')
@@ -11,21 +11,21 @@ const { split } = require('lodash');
 
 async function get_paginated_properties(req, res) {
   try {
-    const page = parseInt(req.params.page);
+    /*const page = parseInt(req.params.page);
     const query = db.collection(dbName);
     const properties = await query
       .orderBy("id")
       .startAt(page * page_size)
       .endAt((page + 1) * page_size)
       .get();
+    */
 
-    const response = properties.docs.map((doc) =>
-      Object.assign(doc.data(), { id: doc.id })
-    );
-    response.forEach(format_property);
+    const page = parseInt(req.params.page);
+    const properties = await db.findAll({offset:page_size * page ,limit: page_size * (page + 1)})
+    console.log(typeof properties)
 
     logger.info('Properties successfully retrieved');
-    return Response.handle200Success(res, 'Properties successfully retrieved', response);
+    return Response.handle200Success(res, 'Properties successfully retrieved',properties);
 
   } catch (error) {
     logger.error("[PaginateProperties](500): " + error.message);

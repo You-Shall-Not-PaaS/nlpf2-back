@@ -1,13 +1,15 @@
 const fireBase = require("firebase-admin");
 
-const configFileName = "./key.json"
-const serviceAccount = require(configFileName);
+// const configFileName = "./key.json"
+// const serviceAccount = require(configFileName);
 
+/*
 fireBase.initializeApp({
   credential: fireBase.credential.cert(serviceAccount),
 });
+*/
 
-const db = fireBase.firestore();
+const db = ""; // fireBase.firestore();
 const dbName = "valeurs-foncieres"
 const page_size = 30
 

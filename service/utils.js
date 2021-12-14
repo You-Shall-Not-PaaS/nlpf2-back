@@ -1,27 +1,35 @@
 const _ = require('lodash')
 
-const { db, dbName } = require('../config')
+const { db } = require('../config')
+const { Op } = require('sequelize')
 
 async function get_property_by_id(id) {
-  const query = db.collection(dbName);
-  const prop = await query.where("id", "==", id).get();
-  const property_doc = prop.docs.map((doc) =>
-    Object.assign(doc.data(), { id: doc.id })
-  );
-  return property_doc[0];
+  const property = await db.findAll({
+    where: {
+      id : id
+    }
+  });
+  return property[0];
 }
 
 async function get_town_prices(propertyType, propertyPostalCode) {
-  const query = db.collection(dbName);
-  const properties = await query
-    .where('Code postal', '==', propertyPostalCode)
-    .where('Type local', '==', propertyType)
-    .get();
-  const properties_doc = properties.docs.map((doc) =>
-    Object.assign(doc.data(), { id: doc.id }))
-  const prices = properties_doc.map(prop => {
-    return _.round(prop["Valeur fonciere"] / prop["Surface reelle bati"], 0);
-  })
+
+  const properties = await db.findAll({
+    where: {
+      [Op.and]: [
+        { code_postal: propertyPostalCode },
+        { type_local: propertyType}
+      ]
+    }
+  });
+
+  let prices = [];
+
+  for (let i = 0; i < properties.length; i++) {
+    prices.push(_.round(properties[i].valeur_fonciere / properties[i].surface_reelle_bati, 0));
+  }
+  
+
   return prices
 }
 
@@ -39,12 +47,12 @@ function sort_properties(doc, filter) {
 
   var result = []
   for (var k in doc) {
-    if (doc[k]['Surface reelle bati'] <= max_built_surface
-      && doc[k]['Surface reelle bati'] >= min_built_surface) {
-      if (doc[k]['Valeur fonciere'] <= max_price
-        && doc[k]['Valeur fonciere'] >= min_price) {
-        if (doc[k]['Nombre pieces principales'] >= min_rooms
-          && doc[k]['Nombre pieces principales'] <= max_rooms) {
+    if (doc[k].surface_reelle_bati <= max_built_surface
+      && doc[k].surface_reelle_bati >= min_built_surface) {
+      if (doc[k].valeur_fonciere <= max_price
+        && doc[k].valeur_fonciere >= min_price) {
+        if (doc[k].nombre_pieces_principales >= min_rooms
+          && doc[k].nombre_pieces_principales <= max_rooms) {
           result.push(doc[k])
         }
       }

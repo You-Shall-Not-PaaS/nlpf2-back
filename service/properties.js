@@ -8,21 +8,13 @@ const { format_property, query_to_array } = require("../utils/formatter")
 const { get_town_prices, sort_properties, get_property_by_id } = require('./utils')
 const { garden, noisAndAccessibility, roomAndSize } = require("./grade/intern_grading");
 const { split } = require('lodash');
+const { Op } = require('sequelize')
 
 async function get_paginated_properties(req, res) {
   try {
-    /*const page = parseInt(req.params.page);
-    const query = db.collection(dbName);
-    const properties = await query
-      .orderBy("id")
-      .startAt(page * page_size)
-      .endAt((page + 1) * page_size)
-      .get();
-    */
 
     const page = parseInt(req.params.page);
     const properties = await db.findAll({offset:page_size * page ,limit: page_size * (page + 1)})
-    console.log(typeof properties)
 
     logger.info('Properties successfully retrieved');
     return Response.handle200Success(res, 'Properties successfully retrieved',properties);
@@ -44,7 +36,6 @@ async function filter_properties(req, res) {
   }
 
   try {
-    console.log("here")
     const page = parseInt(req.params.page);
     const filter = req.query;
     var query = db.collection(dbName);
@@ -159,8 +150,8 @@ async function get_average_price(req, res) {
   try {
     const id = parseInt(req.params.id);
     const property = await get_property_by_id(id)
-    const propertyType = property["Type local"]
-    const propertyPostalCode = property["Code postal"]
+    const propertyType = property.type_local
+    const propertyPostalCode = property.code_postal
     const prices_array = await get_town_prices(propertyType, propertyPostalCode)
     const mean = _.mean(prices_array)
     const average_price = _.round(mean, 0)
@@ -171,7 +162,7 @@ async function get_average_price(req, res) {
       standard_deviation: standard_deviation,
       median_price: median_price,
       sample_size: prices_array.length
-    }
+    };
 
     logger.info('Town average properties price successfully retrieved')
     return Response.handle200Success(res, 'Town average properties price successfully retrieved', body)
@@ -189,28 +180,37 @@ async function get_similar_properties(req, res) {
   try {
     const id = parseInt(req.params.id);
     const property = await get_property_by_id(id)
-    const propertyType = property["Type local"]
-    const propertyCountyCode = property["Code departement"]
-    const propertyValue = parseFloat(property["Valeur fonciere"])
-    const propertyBuiltSurface = parseFloat(property["Surface reelle bati"])
-    const propertyTotalSurface = parseFloat(property["Surface terrain"])
-    const propertyRoomsNumber = parseFloat(property["Nombre pieces principales"])
-    const query = db.collection(dbName);
-    const properties = await query
-      .where('Code departement', '==', propertyCountyCode)
-      .where('Type local', '==', propertyType)
-      .get();
-    const property_doc = properties.docs.map((doc) =>
-      Object.assign(doc.data(), { id: doc.id }))
-    const filter_body = {
-      builtSurface: propertyBuiltSurface,
-      totalSurface: propertyTotalSurface,
-      roomsNumber: propertyRoomsNumber,
-      value: propertyValue
+    const propertyType = property.type_local
+    const propertyCountyCode = property.code_departement
+    const propertyValue = parseFloat(property.valeur_fonciere)
+    const propertyBuiltSurface = parseFloat(property.surface_reelle_bati)
+    const propertyTotalSurface = parseFloat(property.surface_terrain)
+    const propertyRoomsNumber = parseFloat(property.nombre_pieces_principales)
+    
+    const min_rooms = propertyRoomsNumber > 0 ? propertyRoomsNumber - 1 : 0
+    const max_rooms = propertyRoomsNumber + 2
+
+    const min_price = _.round(propertyValue * 0.8, 0)
+    const max_price = _.round(propertyValue * 1.2, 0)
+
+    const min_built_surface = _.round(propertyBuiltSurface * 0.8, 0)
+    const max_built_surface = _.round(propertyBuiltSurface * 1.2, 0)
+
+
+    const properties = db.findAll({
+      limit: 20,
+      where: {
+        [Op.and]: [
+          { code_departement: propertyCountyCode },
+          { type_local: propertyType },
+          { valeur_fonciere: {[Op.between]: [min_price, max_price]}},
+          { surface_reelle_bati: {[Op.between]: [min_built_surface, max_built_surface]}},
+          { nombre_pieces_principales: {[Op.between]: [min_rooms, max_rooms]}},
+      ]
     }
-    const filtered_properties = sort_properties(property_doc, filter_body)
+  })
     logger.info('Similar properties successfully retrieved')
-    return Response.handle200Success(res, 'Similar properties successfully retrieved', filtered_properties)
+    return Response.handle200Success(res, 'Similar properties successfully retrieved', properties)
   } catch (error) {
     logger.error('[GetSimilarProperties](500): ' + error.message);
     return Response.handle500InternalServerError(res, error.message, error.stack)
@@ -222,16 +222,13 @@ async function get_grade(req, res) {
     var grade_dic = { grade: 5, tag: "" };
     const id = parseInt(req.params["id"]);
 
-    const query = await db.collection(dbName).where("id", "==", id).get();
+    const property = await get_property_by_id(id)
 
-    try {
-      property = query.docs.map((doc) =>
-        Object.assign(doc.data(), { id: doc.id })
-      )[0];
-    } catch (error) {
-      Logger.error("Property not found");
+    if (!property) {
+      logger.error("Property not found");
       return Response.handle400BadRequest(res, "Property not found");
     }
+
 
     grade_dic = garden(property, grade_dic);
     grade_dic = noisAndAccessibility(property, grade_dic);

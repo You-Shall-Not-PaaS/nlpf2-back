@@ -1,8 +1,8 @@
 // Bon > Ok > Mauvais  Neutre
 
 function garden(property, grade_dic) {
-  terrain = parseInt(property["Surface terrain"]);
-  property_surface = parseInt(property["Surface reelle bati"]);
+  terrain = parseInt(property.surface_terrain);
+  property_surface = parseInt(property.surface_reelle_bati);
   garden = terrain - property_surface;
 
   if (garden > 0) {
@@ -28,36 +28,36 @@ function noiseAndAccessibility(property, grade_dic) {
   //https://www.sirene.fr/sirene/public/variable/typvoie
 
   if (
-    property["Type de voie"] in
+    property.type_de_voie in
     ["CHE", "DOM", "COR", "ESP", "HAM", "LD", "PRO", "SEN", "VLA", "PLN"]
   ) {
     grade_dic.grade += 1;
     grade_dic.tag += "Vert,Bon;";
   }
-  if (property["Type de voie"] in ["DOM", "PLN", "PLT", "VLA"]) {
+  if (property.type_de_voie in ["DOM", "PLN", "PLT", "VLA"]) {
     grade_dic.grade += 0.75;
     grade_dic.tag += "Très Calme,Bon;";
   }
-  if (property["Type de voie"] in ["CHE", "ECA", "RES", "SEN", "VLGE"]) {
+  if (property.type_de_voie in ["CHE", "ECA", "RES", "SEN", "VLGE"]) {
     grade_dic.grade += 0.6;
     grade_dic.tag += "Calme,Bon;";
   }
-  if (property["Type de voie"] in ["ROC", "CAR"]) {
+  if (property.type_de_voie in ["ROC", "CAR"]) {
     grade_dic.grade += -1;
     grade_dic.tag += "Très Bruyant,Mauvais";
   }
-  if (property["Type de voie"] in ["AV", "BD", "RPT", "RTE"]) {
+  if (property.type_de_voie in ["AV", "BD", "RPT", "RTE"]) {
     grade_dic.grade += -0.5;
     grade_dic.tag += "Bruyant,Mauvais";
   }
-  if (property["Type de voie"] in ["COR", "VLA", "LD"]) {
+  if (property.type_de_voie in ["COR", "VLA", "LD"]) {
     grade_dic.grade += 1;
     grade_dic.tag += "Belle Vue,Bon";
   }
-  if (property["Type de voie"] in ["CITE"]) {
+  if (property.type_de_voie in ["CITE"]) {
     grade_dic.grade += -0.3;
   }
-  if (property["Type de voie"] in ["HLE", "PL", "PRV", "MAR"]) {
+  if (property.type_de_voie in ["HLE", "PL", "PRV", "MAR"]) {
     grade_dic.grade += 0.2;
     grade_dic.tag += "Centre-ville,Neutre";
   }
@@ -66,8 +66,8 @@ function noiseAndAccessibility(property, grade_dic) {
 }
 
 function roomAndSize(property, grade_dic) {
-  const size = parseInt(property["Surface reelle bati"]);
-  const pieces = parseInt(property["Nombre pieces principales"]);
+  const size = parseInt(property.surface_reelle_bati);
+  const pieces = parseInt(property.nombre_pieces_principales);
   const ratio = size / (pieces + 2);
 
   //const bedroom = 13;

@@ -1,5 +1,25 @@
 # nlpf2-back
 
+### To connect to the database
+```
+$ touch .env
+```
+
+ecrire:
+```
+PASSWORD=
+USERNAME=
+DATABASENAME=
+HOST=
+```
+exemple:
+```
+PASSWORD=nlpf
+USERNAME=postgres
+DATABASENAME=postgres
+HOST=localhost
+```
+
 ### To run the app
 ```
 $ npm run app:dev

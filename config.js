@@ -1,21 +1,17 @@
-const fireBase = require("firebase-admin");
 const { Sequelize, DataTypes, Model } = require('sequelize');
-// const configFileName = "./key.json"
-// const serviceAccount = require(configFileName);
+require('dotenv').config();
 
-/*
-fireBase.initializeApp({
-  credential: fireBase.credential.cert(serviceAccount),
-});
-*/
-
-const db = ""; // fireBase.firestore();
-const dbName = "valeurs-foncieres"
 const page_size = 30
 
+const database = process.env.DATABASENAME;
+const password = process.env.PASSWORD;
+const host = process.env.HOST;
+const username = process.env.USERNAME;
+
+
 //deploiment soar
-/*var sequelize = new Sequelize('database', 'username', 'password', {
-  host: 'localhost',
+var sequelize = new Sequelize(database, username, password, {
+  host: host,
   dialect: 'postgres',
 
   pool: {
@@ -24,11 +20,11 @@ const page_size = 30
     idle: 10000
   },
 });
-*/
+
 
 //deploiment test local
 
-var sequelize = new Sequelize("postgresql://postgres:nlpf@localhost:5432/postgres")
+//var sequelize = new Sequelize("postgresql://postgres:nlpf@localhost:5432/postgres")
 
 const Properties = sequelize.define('property', {
   id :{

@@ -2,7 +2,7 @@ const _ = require('lodash');
 
 const Response = require('../utils/response');
 const logger = require("../utils/logger");
-const { db, dbName } = require('../config');
+const { db } = require('../config');
 const { Op } = require('sequelize')
 
 async function get_estimation(req, res) {

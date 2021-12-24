@@ -4,7 +4,7 @@ const Response = require('../utils/response')
 const logger = require("../utils/logger");
 const { db, page_size } = require('../config')
 const { deviation, median } = require("../utils/math")
-const { format_property, query_to_array } = require("../utils/formatter")
+const { format_property, query_to_array, query_to_array_string } = require("../utils/formatter")
 const { get_town_prices, sort_properties, get_property_by_id } = require('./utils')
 const { garden, noisAndAccessibility, roomAndSize } = require("./grade/intern_grading");
 const { split } = require('lodash');
@@ -36,106 +36,52 @@ async function filter_properties(req, res) {
   }
 
   try {
+    console.log("test")
     const page = parseInt(req.params.page);
     const filter = req.query;
-    var query = db.collection(dbName);
+    var query =
+      "db.findAll({offset:page_size * page ,limit: page_size * (page + 1), where: { [Op.and]: [ ";
     var minmax = [];
     for (key in filter) {
-      if (key === "code_postal") {
-        query = query.where("Code postal", "==", filter[key]);
+      if (key === "cities") {
+        communes = query_to_array_string(filter[key]);
+        query += "{ commune : " + communes + "}, ";
       } else if (key === "type_local") {
         if (filter[key] != "Autre") {
-          query = query.where("Type local", "==", filter[key]);
+          query += "{ type_local: " + filter[key] + "}, ";
         } else {
-          minmax[key] = filter[key];
+          query += '{ type_local: { [Op.notIn]: [ "Maison", "Appartement"]}}, ';
         }
-      } else if (key === "cities") {
-        communes = query_to_array(filter[key]);
-        query = query.where("Commune", "in", communes);
-      } else {
-        minmax[key] = filter[key];
+      } else if (key === "maxPrice") {
+        query += "{ valeur_fonciere: { [Op.lte]: " + filter[key] + "}}, ";
+      } else if (key === "minPrice") {
+        query += "{ valeur_fonciere: { [Op.gte]: " + filter[key] + "}}, ";
+      } else if (key === "maxSize") {
+        query += "{ surface_reelle_bati: { [Op.lte]: " + filter[key] + "}}, ";
+      } else if (key === "minSize") {
+        query += "{ surface_reelle_bati: { [Op.gte]: " + filter[key] + "}}, ";
+      } else if (key === "maxRooms") {
+        query +=
+          "{ nombre_pieces_principales: { [Op.lte]: " + filter[key] + "}}, ";
+      } else if (key === "minRooms") {
+        query +=
+          "{ nombre_pieces_principales: { [Op.gte]: " + filter[key] + "}}, ";
       }
     }
 
-    const properties = await query.limit(10000).get();
-    const dict_properties = properties.docs.map((doc) =>
-      Object.assign(doc.data(), { id: doc.id })
+    query += "]}})";
+
+    console.log("\n\n\n\n\n\n\n");
+    console.log(query);
+    console.log("\n\n\n\n\n\n\n");
+    filter_properties = await eval(query);
+
+    logger.info("Properties successfully retrieved");
+    return Response.handle200Success(
+      res,
+      "Properties successfully filtered",
+      filter_properties
     );
-    var filter_properties = [];
-    var count = 0;
-
-    for (i = 0; i < Object.keys(dict_properties).length; i++) {
-      property = dict_properties[i];
-      respect_filter = true;
-      for (const key in minmax) {
-        if (
-          key === "maxPrice" &&
-          parseInt(minmax[key]) <= property["Valeur fonciere"]
-        ) {
-          respect_filter = false;
-          break;
-        }
-        if (
-          key === "minPrice" &&
-          parseInt(minmax[key]) >= property["Valeur fonciere"]
-        ) {
-          respect_filter = false;
-          break;
-        }
-        if (
-          key === "maxSize" &&
-          parseInt(minmax[key]) <= property["Surface reelle bati"]
-        ) {
-          respect_filter = false;
-          break;
-        }
-        if (
-          key === "minSize" &&
-          parseInt(minmax[key]) >= property["Surface reelle bati"]
-        ) {
-          respect_filter = false;
-          break;
-        }
-        if (
-          key === "maxRooms" &&
-          parseInt(minmax[key]) <= property["Nombre pieces principales"]
-        ) {
-          respect_filter = false;
-          break;
-        }
-        if (
-          key === "minRooms" &&
-          parseInt(minmax[key]) >= property["Nombre pieces principales"]
-        ) {
-          respect_filter = false;
-          break;
-        }
-        if (
-          key === "type_local" &&
-          (property["Type local"] === "Maison" ||
-            property["Type local"] === "Appartement")
-        ) {
-          respect_filter = false;
-          break;
-        }
-      }
-
-      if (respect_filter) {
-        if (page * page_size <= count) {
-          if ((page + 1) * page_size >= count) {
-            filter_properties.push(property);
-          } else {
-            break;
-          }
-        }
-        count++;
-      }
-    }
-
-    filter_properties.forEach(format_property);
-
-    logger.info('Properties successfully retrieved')
-    return Response.handle200Success(res, 'Properties successfully filtered', filter_properties)
   } catch (error) {
     logger.error("[FilterProperties](500): " + error.message);
     return Response.handle500InternalServerError(
@@ -197,7 +143,7 @@ async function get_similar_properties(req, res) {
     const max_built_surface = _.round(propertyBuiltSurface * 1.2, 0)
 
 
-    const properties = db.findAll({
+    const properties = await db.findAll({
       limit: 20,
       where: {
         [Op.and]: [

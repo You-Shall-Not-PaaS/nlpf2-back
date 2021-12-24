@@ -15,7 +15,13 @@ function query_to_array(query) {
     return ans;
 }
 
+function query_to_array_string(query) {
+    const ans = "[" + query  + "]";
+    return ans
+}
+
 module.exports = {
     format_property: format_property,
     query_to_array: query_to_array,
+    query_to_array_string: query_to_array_string
 };

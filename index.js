@@ -4,6 +4,7 @@ const app = express();
 
 const Property = require('./service/properties');
 const Estimation = require('./service/estimation')
+const utils = require('./service/utils');
 
 app.use(cors());
 

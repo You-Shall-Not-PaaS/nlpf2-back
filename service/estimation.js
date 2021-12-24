@@ -3,6 +3,7 @@ const _ = require('lodash');
 const Response = require('../utils/response');
 const logger = require("../utils/logger");
 const { db, dbName } = require('../config');
+const { Op } = require('sequelize')
 
 async function get_estimation(req, res) {
     try {
@@ -13,15 +14,22 @@ async function get_estimation(req, res) {
         property.surface = parseInt(req.params.surface);
         property.room = parseInt(req.params.rooms);
         property.jardin = parseInt(req.params.garden);
+        
 
-        const query = db.collection(dbName);
-        const properties = await query
-            .where('Commune', '==', property.commune)
-            .where('Type local', '==', property.type)
-            .get();
+        const properties = await db.findAll({
+                where: {
+                    [Op.and]: [
+                        {commune : property.commune},
+                        {type_local: property.type}
+                    ]
+                }
+              });
 
-        const property_doc = properties.docs.map((doc) =>
-            Object.assign(doc.data(), { id: doc.id }))
+        
+        
+              console.log("\n tets\n")
+        console.log(properties)
+
 
         var average_dic = {};
         average_dic.town = [0, 0, 1];
@@ -31,24 +39,24 @@ async function get_estimation(req, res) {
         average_dic.surface = [0, 0, 4];
         average_dic.similaire = [0, 0, 10];
 
-        for (var k in property_doc) {
+        for (var k in properties) {
             flag = 0;
             average_dic.town[1]++;
-            average_dic.town[0] += property_doc[k]['Valeur fonciere'] / property_doc[k]["Surface reelle bati"];
-            jardin = property_doc[k]["Surface terrain"] - property_doc[k]["Surface reelle bati"];
+            average_dic.town[0] += properties[k]['valeur_fonciere'] / properties[k]["surface_reelle_bati"];
+            jardin = properties["surface_terrain"] - properties[k]["surface_reelle_bati"];
 
             if (property.jardin > 0) {
                 ;
 
                 if (jardin >= (property.jardin * 0.7) && jardin <= (property.jardin * 1.3)) {
-                    average_dic.jardin_similaire[0] += property_doc[k]['Valeur fonciere'] / property_doc[k]["Surface reelle bati"];
+                    average_dic.jardin_similaire[0] += properties[k]['valeur_fonciere'] / properties[k]["surface_reelle_bati"];
                     average_dic.jardin_similaire[1]++;
-                    average_dic.jardin[0] += property_doc[k]['Valeur fonciere'] / property_doc[k]["Surface reelle bati"];
+                    average_dic.jardin[0] += properties[k]['valeur_fonciere'] / properties[k]["surface_reelle_bati"];
                     average_dic.jardin[1]++;
                     flag++;
                 }
                 else if (jardin > 0) {
-                    average_dic.jardin[0] += property_doc[k]['Valeur fonciere'] / property_doc[k]["Surface reelle bati"];
+                    average_dic.jardin[0] += properties[k]['valeur_fonciere'] / properties[k]["surface_reelle_bati"];
                     average_dic.jardin[1]++;
                 }
             }
@@ -56,20 +64,20 @@ async function get_estimation(req, res) {
                 flag++;
             }
 
-            if ((property_doc[k]['Nombre pieces principales'] >= property.room - 1) && (property_doc[k]['Nombre pieces principales'] <= property.room + 1)) {
-                average_dic.piece[0] += property_doc[k]['Valeur fonciere'] / property_doc[k]["Surface reelle bati"];
+            if ((properties[k]['nombre_pieces_principales'] >= property.room - 1) && (properties[k]['nombre_pieces_principales'] <= property.room + 1)) {
+                average_dic.piece[0] += properties[k]['valeur_fonciere'] / properties[k]["surface_reelle_bati"];
                 average_dic.piece[1]++;
                 flag++;
             }
 
-            if ((property_doc[k]['Surface reelle bati'] >= property.surface * 0.8) && (property_doc[k]['Surface reelle bati'] <= property.surface * 1.2)) {
-                average_dic.surface[0] += property_doc[k]['Valeur fonciere'] / property_doc[k]["Surface reelle bati"];
+            if ((properties[k]["surface_reelle_bati"] >= property.surface * 0.8) && (properties[k]["surface_reelle_bati"] <= property.surface * 1.2)) {
+                average_dic.surface[0] += properties[k]['valeur_fonciere'] / properties[k]["surface_reelle_bati"];
                 average_dic.surface[1]++;
                 flag++;
             }
 
             if (flag === 3) {
-                average_dic.similaire[0] += property_doc[k]['Valeur fonciere'] / property_doc[k]["Surface reelle bati"];
+                average_dic.similaire[0] += properties[k]['valeur_fonciere'] / properties[k]["surface_reelle_bati"];
                 average_dic.similaire[1]++;
             }
         }

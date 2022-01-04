@@ -3,28 +3,28 @@ require('dotenv').config();
 
 const page_size = 30
 
-// const database = process.env.DATABASENAME;
-// const password = process.env.PASSWORD;
-// const host = process.env.HOST;
-// const username = process.env.USERNAME;
+const database = process.env.DATABASENAME;
+const password = process.env.PASSWORD;
+const host = process.env.HOST;
+const username = process.env.USERNAME;
 
 
-// //deploiment soar
-// var sequelize = new Sequelize(database, username, password, {
-//   host: host,
-//   dialect: 'postgres',
+//deploiment soar
+var sequelize = new Sequelize(database, username, password, {
+  host: host,
+  dialect: 'postgres',
 
-//   pool: {
-//     max: 5,
-//     min: 0,
-//     idle: 10000
-//   },
-// });
+  pool: {
+    max: 5,
+    min: 0,
+    idle: 10000
+  },
+});
 
 
 //deploiment test local
 
-var sequelize = new Sequelize(process.env.DB_URL)
+//var sequelize = new Sequelize(process.env.DB_URL)
 
 const Properties = sequelize.define('property', {
   id :{

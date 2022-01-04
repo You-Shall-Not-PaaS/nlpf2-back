@@ -1,4 +1,3 @@
-id,no_disposition,date_mutation,nature_mutation,valeur_fonciere,no_voie,type_de_voie,code_voie,voie,code_postal,commune,code_departement,code_commune,section,no_plan,premier_lot,nombre_de_lots,code_type_local,type_local,surface_reelle_bati,nombre_pieces_principales,nature_culture,surface_terrain
 796351,1,2020-02-21,Vente,224000,15,RUE,0800,DU PONT,77640,JOUARRE,77,238,AK,461,,0,1.0,Maison,160,6,S,173
 796352,1,2020-05-03,Vente,145000,6,RUE,0300,DE LA GARE,77120,COULOMMIERS,77,131,AR,198,30.0,1,2.0,Appartement,63,3,,
 796353,1,2020-05-03,Vente,145000,6,RUE,0300,DE LA GARE,77120,COULOMMIERS,77,131,AR,198,58.0,1,3.0,Dépendance,0,0,,

@@ -6,7 +6,7 @@ const page_size = 30
 const database = process.env.DATABASENAME;
 const password = process.env.PASSWORD;
 const host = process.env.HOST;
-const username = process.env.USERNAME;
+const username = process.env.U;
 
 
 //deploiment soar

@@ -6,7 +6,7 @@ WORKDIR /app
 
 ENV PORT=5555
 
-COPY package*.json .
+COPY package*.json ./
 
 # Install dependencies.
 RUN npm install

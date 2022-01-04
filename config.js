@@ -3,17 +3,22 @@ require('dotenv').config();
 
 const page_size = 30
 
-const database = process.env.DATABASENAME;
-const password = process.env.PASSWORD;
-const host = process.env.HOST;
-const username = process.env.USERNAME;
+const database = process.env.DB_NAME;
+const password = process.env.DB_PASSWORD;
+const host = process.env.DB_HOST || 'localhost';
+const user = process.env.DB_USER;
 
 
 //deploiment soar
-var sequelize = new Sequelize(database, username, password, {
+var sequelize = new Sequelize(database, user, password, {
   host: host,
   dialect: 'postgres',
-
+  dialectOptions: {
+    // e.g. socketPath: '/cloudsql/my-awesome-project:us-central1:my-cloud-sql-instance'
+    // same as host string above
+    socketPath: host
+  },
+  logging: false,
   pool: {
     max: 5,
     min: 0,
@@ -27,71 +32,71 @@ var sequelize = new Sequelize(database, username, password, {
 //var sequelize = new Sequelize(process.env.DB_URL)
 
 const Properties = sequelize.define('property', {
-  id :{
+  id: {
     type: DataTypes.INTEGER,
     primaryKey: true
   },
-  no_disposition :{
+  no_disposition: {
     type: DataTypes.STRING
   },
-  date_mutation :{
+  date_mutation: {
     type: DataTypes.STRING
   },
-  nature_mutation :{
+  nature_mutation: {
     type: DataTypes.STRING
   },
-  valeur_fonciere :{
+  valeur_fonciere: {
     type: DataTypes.INTEGER
   },
-  type_de_voie :{
+  type_de_voie: {
     type: DataTypes.STRING
   },
-  code_voie :{
+  code_voie: {
     type: DataTypes.STRING
   },
-  voie :{
+  voie: {
     type: DataTypes.STRING
   },
-  code_postal :{
+  code_postal: {
     type: DataTypes.STRING
   },
-  commune :{
+  commune: {
     type: DataTypes.STRING
   },
-  code_departement :{
+  code_departement: {
     type: DataTypes.STRING
   },
-  code_commune :{
+  code_commune: {
     type: DataTypes.STRING
   },
-  section :{
+  section: {
     type: DataTypes.STRING
   },
-  no_plan :{
+  no_plan: {
     type: DataTypes.STRING
   },
-  premier_lot:{
+  premier_lot: {
     type: DataTypes.STRING
   },
-  nombre_de_lots :{
+  nombre_de_lots: {
     type: DataTypes.STRING
   },
-  code_type_local :{
+  code_type_local: {
     type: DataTypes.STRING
   },
-  type_local :{
+  type_local: {
     type: DataTypes.STRING
   },
-  surface_reelle_bati :{
+  surface_reelle_bati: {
     type: DataTypes.FLOAT
   },
-  nombre_pieces_principales :{
+  nombre_pieces_principales: {
     type: DataTypes.INTEGER
   },
-  nature_culture :{
+  nature_culture: {
     type: DataTypes.STRING
   },
-  surface_terrain :{
+  surface_terrain: {
     type: DataTypes.FLOAT
   }
 },
